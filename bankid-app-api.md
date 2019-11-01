@@ -4,7 +4,7 @@ The BankID app is HA2-mechanism in the BankID infrastructure. This implies that 
 BankID, must support the HA2-mechanism _bapp_. When a user downloads and activates the BankID app, Vipps will send 
 a request to the issuing bank to add the _bapp_ HA2 mechanism (OTP) to the users BankID. 
 
-In order for Vipps to request BankID app to be added as OTP mechanism for a users BankID, the bank must implement the API described here. 
+In order for Vipps to request BankID app to be added as HA2 mechanism for a users BankID, the bank must implement the API described here. 
 
 ## Vipps request server
 
@@ -22,11 +22,11 @@ The requests sent by Vipps contains a Signature header as described in the proto
 All request headers listed below are included in the signature. The receiver must verify the signature using the certificate acquired 
 from Vipps as described in [Getting Started](https://github.com/vippsas/bankid-app-api/blob/master/bankid-app-getting-started.md). 
 
-| Service | Verb | Response | Description |
+| Service | Verb | Response Schema: application/json | Description |
 | ----------- | ----------- | ----------- | ----------- |
-| OTP Status | `GET` | Status with value: ENABLED / NOT_ENABLED / NOT_AVAILABLE / BANK_ID_NOT_AVAILABLE / BLOCKED_BY_BANK / BLOCKED_IN_ODS |  Request the status of a HA service of the BankID of the given user |
-| Add OTP | `PUT` | Status with value: ENABLED / NOT_ENABLED / ALREADY_ENABLED / NOT_AVAILABLE / BANK_ID_NOT_AVAILABLE / BLOCKED_BY_BANK / BLOCKED_IN_ODS | Request an HA service to be added to the BankID of the given user |
-| Delete ORP | `DELETE` | Status with value: DELETED / NOT_ENABLED / BLOCKED_IN_ODS | Request an HA service to be removed from the BankID of the given user |
+| BankID app Status | `GET` | status: ENABLED / NOT_ENABLED / NOT_AVAILABLE / BANK_ID_NOT_AVAILABLE / BLOCKED_BY_BANK / BLOCKED_IN_ODS |  Request the status of the _bapp_ HA2 service of the BankID of the given user |
+| Add BankID app | `PUT` | status: ENABLED / NOT_ENABLED / ALREADY_ENABLED / NOT_AVAILABLE / BANK_ID_NOT_AVAILABLE / BLOCKED_BY_BANK / BLOCKED_IN_ODS | Request the _bapp_ HA2 service to be added to the BankID of the given user |
+| Delete BankID app | `DELETE` | status: DELETED / NOT_ENABLED / BLOCKED_IN_ODS | Request the _bapp_ HA2 service to be removed from the BankID of the given user |
 
 The requests sent by Vipps includes the following headers:
 
@@ -39,22 +39,12 @@ The requests sent by Vipps includes the following headers:
 | X-CLIENT-REQUESTID-HEADER | Unique identifier of the request (e.g. used as log reference) | 90921bc0-3550-47ec-ada5-f79ae86bad95 |
 | X-CUSTOMERID | Norwegian National identity number | 12063035716 |
 
-Successful responses should be returned with HTTP status code 200 and contain a status value.
-Response example   
+**Successful responses** should be returned with HTTP status code 200 and contain a JSON body with a _status_ value.
+Response example:  
 `{
-  "status": "BANK_ID_NOT_AVAILABLE"    
+  "status": "ENABLED"    
 }`
-
-Error responses from RA could be returned with HTTP status code 401 or code 500 and should have following structure: 
-Error response example
-`{
-  "system": "bankid-ra",
-  "code": "1622",
-  "message": "Internal failure",
-  "params": null
-}`
-
- The available statuses that may be returned in the response messages:
+The following statuses may be returned in the response messages:
  
 | Status | Description |
 | ----------- | ----------- |
@@ -67,6 +57,7 @@ Error response example
 | BLOCKED_IN_ODS | OTP BankID app is connected to the BankID, but was blocked by ODS because of to many failed attempts |
 | DELETED | OTP BankID app was successfully deleted | 
 
+**Error responses** from  should be returned with HTTP status code 401 or code 500.
 
 # Questions?
 
