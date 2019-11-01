@@ -1,4 +1,4 @@
-# API endpoints required by Vipps from the bank
+# BankID app API guide
 
 The BankID app is HA2-mechanism in the BankID infrastructure. This implies that the RA-system of the bank issuing the users 
 BankID, must support the HA2-mechanism _bapp_. When a user downloads and activates the BankID app, Vipps will send 
