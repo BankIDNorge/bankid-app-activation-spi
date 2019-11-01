@@ -4,8 +4,6 @@ The BankID app is HA2-mechanism in the BankID infrastructure. This implies that 
 BankID, must support the HA2-mechanism _bapp_. When a user downloads and activates the BankID app, Vipps will send 
 a request to the issuing bank to add the _bapp_ HA2 mechanism (OTP) to the users BankID. 
 
-In order for Vipps to request BankID app to be added as HA2 mechanism for a users BankID, the bank must implement the API described here. 
-
 ## Vipps request server
 
 The request from Vipps are made from the servers described in [Getting Started](https://github.com/vippsas/bankid-app-api/blob/master/bankid-app-getting-started.md)
@@ -14,7 +12,13 @@ Please make sure that requests from these servers are allowed through firewalls,
 
 **Note:** Vipps may change the IP addresses that we make callbacks from. To ensure that you are whitelisting the corrects IP addresses please use these hostnames.  
 
-## Request endpoints
+## BankID app API
+Vipps offers an administration API allowing the bank issuing BankIDs to query if a user has activated BankID app, and to enable/disable the app for a given user. Security is provided by OpenID connect (OIDC) access tokens, issues by BankID OIDC
+
+## API endpoints required by Vipps from the bank
+In order for Vipps to request BankID app to be added as HA2 mechanism for a users BankID, the bank must implement the API described here. 
+
+### Request endpoints
 In order for Vipps to request BankID app to be added as OTP mechanism for a users BankID, the servcie described in the list below must be offered by the bank. 
 The endpoints must accept signed HTTP messages according to the [Signing HTTP Messages](https://tools.ietf.org/html/draft-cavage-http-signatures-12) protocol.
 
