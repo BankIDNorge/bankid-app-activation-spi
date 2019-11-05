@@ -1,6 +1,8 @@
-# BankID app API
-This repository contains developer resources for the BankID App API.
+# BankID app integration
+This guide describes how to integrate the BankID App as an HA2 mechanism for a BankID issuing bank.
 
-For information about API keys, product activation, etc see [Getting Started](https://github.com/vippsas/bankid-app-api/blob/master/bankid-app-getting-started.md)
+The bank needs to open it's BankID RA for calls from Vipps, so that Vipps can connect the BankID App with a BankID.
+  
+For information about API keys, product activation, etc see [Getting Started](https://github.com/vippsas/bankid-app-api/blob/master/bankid-app-getting-started.md).
 
 For API documentation and development guidelines please see our [BankID app API guide](https://github.com/vippsas/bankid-app-api/blob/master/bankid-app-api.md).
