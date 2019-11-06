@@ -44,7 +44,7 @@ The requests sent by Vipps requires the following headers. None of the requests 
 | Date | Standard http date header, GMT and english locale | _Mon, 16 Sep 2019 12:12:21 GMT_ |
 | X-CLIENT-CLIENTNAME | The BankID app client name | always _vipps-bapp-client_ |
 | X-DATAOWNERORGID | BankID originator ID | _2811_ |
-| X-CLIENT-REQUESTID-HEADER | Unique identifier of the request (e.g. used as log reference) | _90921bc0-3550-47ec-ada5-f79ae86bad95_ |
+| X-CLIENT-REQUESTID | Unique identifier of the request (e.g. used as log reference) | _90921bc0-3550-47ec-ada5-f79ae86bad95_ |
 | X-CUSTOMERID | Norwegian National identity number | _11111111016_ |
 
 **Successful responses** should be returned with HTTP status code 200 and contain a JSON body with a _status_ value. 
