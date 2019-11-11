@@ -1,0 +1,225 @@
+openapi: 3.0.1
+info:
+  title: Integration of BankID app with bank's BankID RA service
+  description: |-
+    Defines methods needed to be implemented by Registration Authority service in banks wanting to add BankID app as an OTP mechanism for their BankID Netcentric users.
+
+    If an RA service implements these methods, than the activation of an BankID app will use them to connect the BankID app with the endUser's BankID.
+  version: "1.2"
+tags:
+- name: RaRequirements
+  description: Administrate (BankID app OTP, Netcentric BankID) relation in endUser's
+    bank's RA
+paths:
+  /external/ra:
+    get:
+      tags:
+      - RaRequirements
+      description: Checks whether an endUser has BankID app enabled as an OTP mechanism
+        for at least one of his BankIDs in a given bank
+      operationId: getBappOtpStatus
+      parameters:
+      - name: Signature
+        in: header
+        description: The Signature element, as described in https://tools.ietf.org/html/draft-cavage-http-signatures-12
+        required: true
+        schema:
+          type: string
+        example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
+          date x-client-clientname x-dataownerorgid x-client-requestid x-customerid",signature="o7zK892...."
+      - name: Date
+        in: header
+        description: 'The date element, timezone GMT, locale english, Format description
+          in Java is: ''EEE, dd MMM yyyy HH:mm:ss zzz'''
+        required: true
+        schema:
+          type: string
+        example: Mon, 16 Sep 2019 12:12:21 GMT
+      - name: X-CLIENT-CLIENTNAME
+        in: header
+        description: Client calling this method, constant value
+        required: true
+        schema:
+          type: string
+        example: vipps-bapp-client
+      - name: X-DATAOWNERORGID
+        in: header
+        description: Originator/bank-number for endUser's bankID, valid BankID ODS
+          number
+        required: true
+        schema:
+          type: string
+        example: 3625
+      - name: X-CUSTOMERID
+        in: header
+        description: EndUser's Norwegian national identification number, string of
+          11 digits
+        required: true
+        schema:
+          type: string
+        example: 11111111016
+      responses:
+        200:
+          description: If status returned is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OTPStatusResponse'
+        400:
+          description: In case of error
+        500:
+          description: In case of error
+    put:
+      tags:
+      - RaRequirements
+      description: Adds BankID app to an endUser's BankID OTP mechanisms in a given
+        bank
+      operationId: addBappOtp
+      parameters:
+      - name: Signature
+        in: header
+        description: The Signature element, as described in https://tools.ietf.org/html/draft-cavage-http-signatures-12
+        required: true
+        schema:
+          type: string
+        example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
+          date x-client-clientname x-dataownerorgid x-client-requestid x-customerid",signature="o7zK892...."
+      - name: Date
+        in: header
+        description: 'The date element, timezone GMT, locale english, Format description
+          in Java is: ''EEE, dd MMM yyyy HH:mm:ss zzz'''
+        required: true
+        schema:
+          type: string
+        example: Mon, 16 Sep 2019 12:12:21 GMT
+      - name: X-CLIENT-CLIENTNAME
+        in: header
+        description: Client calling this method, constant value
+        required: true
+        schema:
+          type: string
+        example: vipps-bapp-client
+      - name: X-DATAOWNERORGID
+        in: header
+        description: Originator/bank-number for endUser's bankID, valid BankID ODS
+          number
+        required: true
+        schema:
+          type: string
+        example: 3625
+      - name: X-CUSTOMERID
+        in: header
+        description: EndUser's Norwegian national identification number, string of
+          11 digits
+        required: true
+        schema:
+          type: string
+        example: 11111111016
+      responses:
+        200:
+          description: If status returned is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OTPAddResponse'
+        400:
+          description: In case of error
+        500:
+          description: In case of error
+    delete:
+      tags:
+      - RaRequirements
+      description: Removes BankID app as an endUser's OTP mechanism for at least one
+        of his BankIDs in a given bank
+      operationId: removeBappOtp
+      parameters:
+      - name: Signature
+        in: header
+        description: The Signature element, as described in https://tools.ietf.org/html/draft-cavage-http-signatures-12
+        required: true
+        schema:
+          type: string
+        example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
+          date x-client-clientname x-dataownerorgid x-client-requestid x-customerid",signature="o7zK892...."
+      - name: Date
+        in: header
+        description: 'The date element, timezone GMT, locale english, Format description
+          in Java is: ''EEE, dd MMM yyyy HH:mm:ss zzz'''
+        required: true
+        schema:
+          type: string
+        example: Mon, 16 Sep 2019 12:12:21 GMT
+      - name: X-CLIENT-CLIENTNAME
+        in: header
+        description: Client calling this method, constant value
+        required: true
+        schema:
+          type: string
+        example: vipps-bapp-client
+      - name: X-DATAOWNERORGID
+        in: header
+        description: Originator/bank-number for endUser's bankID, valid BankID ODS
+          number
+        required: true
+        schema:
+          type: string
+        example: 3625
+      - name: X-CUSTOMERID
+        in: header
+        description: EndUser's Norwegian national identification number, string of
+          11 digits
+        required: true
+        schema:
+          type: string
+        example: 11111111016
+      responses:
+        200:
+          description: If status returned is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OTPDeleteResponse'
+        400:
+          description: In case of error
+        500:
+          description: In case of error
+components:
+  schemas:
+    OTPAddResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - ENABLED
+          - NOT_ENABLED
+          - ALREADY_ENABLED
+          - NOT_AVAILABLE
+          - BANK_ID_NOT_AVAILABLE
+          - BLOCKED_BY_BANK
+          - BLOCKED_IN_ODS
+      description: The result of trying to enable BankID app for an endUser's BankID
+    OTPStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - NOT_ENABLED
+          - ENABLED
+          - NOT_AVAILABLE
+          - BANK_ID_NOT_AVAILABLE
+          - BLOCKED_BY_BANK
+          - BLOCKED_IN_ODS
+      description: The result of asking if BankID app is enabled for an enddUser's
+        BankID
+    OTPDeleteResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - DELETED
+          - NOT_ENABLED
+          - BLOCKED_IN_ODS
+      description: 'The result of trying to remove BankID app from an endUser''s BankID '

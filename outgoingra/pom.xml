@@ -37,9 +37,9 @@
                 <artifactId>swagger-maven-plugin</artifactId>
                 <version>${swagger.version}</version>
                 <configuration>
-                    <outputFileName>openapi</outputFileName>
+                    <outputFileName>swagger</outputFileName>
                     <outputPath>${project.basedir}/../docs</outputPath>
-                    <outputFormat>JSON</outputFormat>
+                    <outputFormat>YAML</outputFormat>
                     <resourcePackages>
                         <package>no.bankid</package>
                     </resourcePackages>
