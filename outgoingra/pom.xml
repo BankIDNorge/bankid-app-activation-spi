@@ -38,7 +38,7 @@
                 <version>${swagger.version}</version>
                 <configuration>
                     <outputFileName>openapi</outputFileName>
-                    <outputPath>${project.build.directory}/generated-sources/swagger</outputPath>
+                    <outputPath>${project.basedir}/../docs</outputPath>
                     <outputFormat>JSON</outputFormat>
                     <resourcePackages>
                         <package>no.bankid</package>
