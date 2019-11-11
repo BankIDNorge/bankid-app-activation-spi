@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>no.bankid</groupId>
+    <artifactId>outgoing.ra</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
+        <swagger.version>2.0.6</swagger.version>
+        <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${javax.ws.rs-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <version>${swagger.version}</version>
+                <configuration>
+                    <outputFileName>openapi</outputFileName>
+                    <outputPath>${project.basedir}/../docs</outputPath>
+                    <outputFormat>JSON</outputFormat>
+                    <resourcePackages>
+                        <package>no.bankid</package>
+                    </resourcePackages>
+                    <!--suppress MavenModelInspection -->
+                    <prettyPrint>TRUE</prettyPrint>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>resolve</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
