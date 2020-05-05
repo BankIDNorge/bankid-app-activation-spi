@@ -6,139 +6,320 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import javax.ws.rs.DELETE;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static no.bankid.outgoing.ra.HttpSignatureHeaders.DATE;
+import static no.bankid.outgoing.ra.HttpSignatureHeaders.DIGEST;
+import static no.bankid.outgoing.ra.HttpSignatureHeaders.SIGNATURE;
+
 @OpenAPIDefinition(
         info = @Info(
-                title = "Integration of BankID app with bank's BankID RA service",
+                title = "Integration of BankID App with bank's BankID RA service",
                 version = "1.2",
-                description = "Defines methods needed to be implemented by Registration Authority service in banks " +
-                        "wanting to add BankID app as an OTP mechanism for their BankID Netcentric users.\n\n" +
-                        "If an RA service implements these methods, than the activation of an BankID app will use " +
-                        "them to connect the BankID app with the endUser's BankID."
-        //      ,contact =
-        //      @Contact(url = "http://gigantic-server.com", name = "Fred", email = "Fred@gigagantic-server.com")
-        )
+                description = "Defines methods needed to be implemented by a Registration Authority service in banks " +
+                        "wanting to add BankID App as an OTP mechanism for their BankID Netcentric users.<p>" +
+                        "If an RA service implements these methods, than the activation of an BankID App will use " +
+                        "them to connect the BankID App with the endUser's BankID.</p>"
+        ),
+        tags = {
+                @Tag(name = "Basic RA Requirements",
+                        description = "Adds or deletes BankID App from an endUser's BankID"),
+                @Tag(name = "Activation without Code Device",
+                        description = "Activation of BankID App without no other Code Device")
+
+        },
+        servers = {
+                @Server(description = "Preprod Ra-lite",
+                        url = "https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp")
+        }
+
 )
 
-@Tag(name = "RaRequirements",
-        description = "Administrate (BankID app OTP, Netcentric BankID) relation in endUser's bank's RA")
-@Path("/external/ra/")
-@Produces({MediaType.APPLICATION_JSON})
 
+@Path("/")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public interface RaRequirements {
-    @Operation(description = "Adds BankID app to an endUser's BankID OTP mechanisms in a given bank")
+
+    String DESCRIPTION_SIGNATURE = "The Signature element, as described " +
+            "in <a href=\"https://tools.ietf.org/html/draft-cavage-http-signatures-12\">Internet-Draft - Signing HTTP Messages</a>.";
+    String EXAMPLE_SIGNATURE = "keyId=\"fa998090\",algorithm=\"rsa-sha256\"," +
+            "headers=\"(request-target) date digest\",signature=\"o7zK892....\"";
+
+    String DESCRIPTION_DATE = "The date element, required format is the format named 'preferred' specified in " +
+            "<a href=\"https://tools.ietf.org/html/rfc7231#section-7.1.1.1\">RFC 7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>." +
+            "<p><b>Implementation tips:</b> Format in Java is 'EEE, dd MMM yyyy HH:mm:ss zzz', locale english.</p>";
+    String EXAMPLE_DATE = "Mon, 16 Sep 2019 12:12:21 GMT";
+
+    String DESCRIPTION_DIGEST = "SHA-256 hash of body" +
+            "<p><b>Implementation tips:</b>MessageDigest.getIinstance(\"SHA-256\") in Java returns an object which is not thread safe</p>";
+    String EXAMPLE_DIGEST = "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=";
+
+    @Operation(summary = "Adds BankID App to an endUser"
+            , description = "Adds BankID App to an endUser's BankID OTP mechanisms in a given bank"
+            , tags = {"Basic RA Requirements"}
+    )
 
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
             content = @Content(schema = @Schema(implementation = OTPAddResponse.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
-    @ApiResponse(responseCode = "500", description = "In case of error")
+    @ApiResponse(responseCode = "500", description = "In case of error",
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+    )
+    @Path("add")
     @PUT
     Response addBappOtp(
-            @Parameter(description = "The Signature element, as described " +
-                    "in https://tools.ietf.org/html/draft-cavage-http-signatures-12",
-                    example = "keyId=\"fa998090\",algorithm=\"rsa-sha256\"," +
-                            "headers=\"(request-target) date x-client-clientname x-dataownerorgid " +
-                            "x-client-requestid x-customerid\",signature=\"o7zK892....\"",
+            @Parameter(description = DESCRIPTION_SIGNATURE,
+                    example = EXAMPLE_SIGNATURE,
                     required = true)
-            @HeaderParam("Signature") String httpSignature,
-            @Parameter(description = "The date element, timezone GMT, locale english, " +
-                    "Format description in Java is: 'EEE, dd MMM yyyy HH:mm:ss zzz'",
-                    example = "Mon, 16 Sep 2019 12:12:21 GMT",
+            @HeaderParam(SIGNATURE) String httpSignature,
+            @Parameter(description = DESCRIPTION_DATE,
+                    example = EXAMPLE_DATE,
                     required = true)
-            @HeaderParam("Date") String date,
-            @Parameter(description = "Client calling this method, constant value",
-                    example = "vipps-bapp-client",
+            @HeaderParam(DATE) String date,
+            @Parameter(description = DESCRIPTION_DIGEST,
+                    example = EXAMPLE_DIGEST,
                     required = true)
-            @HeaderParam("X-CLIENT-CLIENTNAME") String clientName,
-            @Parameter(description = "Originator/bank-number for endUser's bankID, valid BankID ODS number",
-                    example = "3625",
-                    required = true)
-            @HeaderParam("X-DATAOWNERORGID") String odsBankNo,
-            @Parameter(description = "EndUser's Norwegian national identification number, string of 11 digits",
-                    example = "11111111016",
-                    required = true)
-            @HeaderParam("X-CUSTOMERID") String nnin
+            @HeaderParam(DIGEST) String digest,
+            AuthenticationBody authenticationBody
     );
 
-    @Operation(description = "Checks whether an endUser has BankID app enabled as an OTP mechanism " +
-            "for at least one of his BankIDs in a given bank")
+    @Operation(summary = "Gets the BankID App OTP status for an endUser"
+            , description = "Checks whether an endUser has BankID App enabled as an OTP mechanism " +
+            "for at least one of his BankIDs in a given bank"
+            , tags = {"Basic RA Requirements"}
+    )
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
             content = @Content(schema = @Schema(implementation = OTPStatusResponse.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
-    @ApiResponse(responseCode = "500", description = "In case of error")
-    @GET
+    @ApiResponse(responseCode = "500", description = "In case of error",
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+    )
+    @Path("status")
+    @PUT
     Response getBappOtpStatus(
-            @Parameter(description = "The Signature element, as described " +
-                    "in https://tools.ietf.org/html/draft-cavage-http-signatures-12",
-                    example = "keyId=\"fa998090\",algorithm=\"rsa-sha256\"," +
-                            "headers=\"(request-target) date x-client-clientname x-dataownerorgid " +
-                            "x-client-requestid x-customerid\",signature=\"o7zK892....\"",
+            @Parameter(description = DESCRIPTION_SIGNATURE,
+                    example = EXAMPLE_SIGNATURE,
                     required = true)
-            @HeaderParam("Signature") String httpSignature,
-            @Parameter(description = "The date element, timezone GMT, locale english, " +
-                    "Format description in Java is: 'EEE, dd MMM yyyy HH:mm:ss zzz'",
-                    example = "Mon, 16 Sep 2019 12:12:21 GMT",
+            @HeaderParam(SIGNATURE) String httpSignature,
+            @Parameter(description = DESCRIPTION_DATE,
+                    example = EXAMPLE_DATE,
                     required = true)
-            @HeaderParam("Date") String date,
-            @Parameter(description = "Client calling this method, constant value",
-                    example = "vipps-bapp-client",
+            @HeaderParam(DATE) String date,
+            @Parameter(description = DESCRIPTION_DIGEST,
+                    example = EXAMPLE_DIGEST,
                     required = true)
-            @HeaderParam("X-CLIENT-CLIENTNAME") String clientName,
-            @Parameter(description = "Originator/bank-number for endUser's bankID, valid BankID ODS number",
-                    example = "3625",
-                    required = true)
-            @HeaderParam("X-DATAOWNERORGID") String odsBankNo,
-            @Parameter(description = "EndUser's Norwegian national identification number, string of 11 digits",
-                    example = "11111111016",
-                    required = true)
-            @HeaderParam("X-CUSTOMERID") String nnin
+            @HeaderParam(DIGEST) String digest,
+            AuthenticationBody authenticationBody
     );
 
-    @Operation(description = "Removes BankID app as an endUser's OTP mechanism for at least one of " +
-            "his BankIDs in a given bank")
+    @Operation(summary = "Removes BankID App from an endUser"
+            , description = "Removes BankID App as an endUser's OTP mechanism for at least one of " +
+            "his BankIDs in a given bank"
+            , tags = {"Basic RA Requirements"}
+    )
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
             content = @Content(schema = @Schema(implementation = OTPDeleteResponse.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
-    @ApiResponse(responseCode = "500", description = "In case of error")
-    @DELETE
+    @ApiResponse(responseCode = "500", description = "In case of error",
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+    )
+    @PUT
+    @Path("remove")
     Response removeBappOtp(
-            @Parameter(description = "The Signature element, as described " +
-                    "in https://tools.ietf.org/html/draft-cavage-http-signatures-12",
-                    example = "keyId=\"fa998090\",algorithm=\"rsa-sha256\"," +
-                            "headers=\"(request-target) date x-client-clientname x-dataownerorgid " +
-                            "x-client-requestid x-customerid\",signature=\"o7zK892....\"",
+            @Parameter(description = DESCRIPTION_SIGNATURE,
+                    example = EXAMPLE_SIGNATURE,
                     required = true)
-            @HeaderParam("Signature") String httpSignature,
-            @Parameter(description = "The date element, timezone GMT, locale english, " +
-                    "Format description in Java is: 'EEE, dd MMM yyyy HH:mm:ss zzz'",
-                    example = "Mon, 16 Sep 2019 12:12:21 GMT",
+            @HeaderParam(SIGNATURE) String httpSignature,
+            @Parameter(description = DESCRIPTION_DATE,
+                    example = EXAMPLE_DATE,
                     required = true)
-            @HeaderParam("Date") String date,
-            @Parameter(description = "Client calling this method, constant value",
-                    example = "vipps-bapp-client",
+            @HeaderParam(DATE) String date,
+            @Parameter(description = DESCRIPTION_DIGEST,
+                    example = EXAMPLE_DIGEST,
                     required = true)
-            @HeaderParam("X-CLIENT-CLIENTNAME") String clientName,
-            @Parameter(description = "Originator/bank-number for endUser's bankID, valid BankID ODS number",
-                    example = "3625",
+            @HeaderParam(DIGEST) String digest,
+            AuthenticationBody authenticationBody
+    );
+
+    @Operation(
+            summary = "Health check of the RA application",
+            description = "Checks that the RA is capable of handling endpoints declared here",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "RA is healthy"),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "RA is not healthy")}
+            , tags = {"Activation without Code Device"})
+    @Path("healthcheck")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    Response healthCheck();
+
+    @Operation(summary = "Check two-channel options for endUser"
+            , description =
+            "<p>Endpoint to check if a specific user is eligible from single originator for self-service activation.</p>" +
+                    "<p>The RA should check if the provided phone number is registered for the user, " +
+                    "but return the other information regardless."
+            , tags = {"Activation without Code Device"})
+    @ApiResponse(responseCode = "200", description = "If status returned is valid",
+            content = @Content(schema = @Schema(implementation = SelfServiceCheckUserResponse.class))
+    )
+    @ApiResponse(responseCode = "400", description = "In case of error")
+    @ApiResponse(responseCode = "500", description = "In case of error",
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+    )
+    @Path("selfservice/check_user")
+    @POST
+    Response selfServiceCheckUser(
+            @Parameter(description = DESCRIPTION_SIGNATURE,
+                    example = EXAMPLE_SIGNATURE,
                     required = true)
-            @HeaderParam("X-DATAOWNERORGID") String odsBankNo,
-            @Parameter(description = "EndUser's Norwegian national identification number, string of 11 digits",
-                    example = "11111111016",
+            @HeaderParam(SIGNATURE) String httpSignature,
+            @Parameter(description = DESCRIPTION_DATE,
+                    example = EXAMPLE_DATE,
                     required = true)
-            @HeaderParam("X-CUSTOMERID") String nnin
+            @HeaderParam(DATE) String date,
+            @Parameter(description = DESCRIPTION_DIGEST,
+                    example = EXAMPLE_DIGEST,
+                    required = true)
+            @HeaderParam(DIGEST) String digest,
+            @RequestBody(description = "Activation code and how to distribute", required = true)
+                    SelfServiceCheckuserRequestBody selfserviceCheckuserRequestBody
+    );
+
+    @Operation(summary = "Request distribution of a verification code to be sent to an endUser."
+            , description = "<p>Endpoint to request distribution of an a verification code to be sent to an endUser. " +
+            "Upon receiving a request on this end-point, the RA should distribute the provided code over " +
+            "sms or return an error-code.</p>" +
+            "<p>The RA should reject requests if they do not recognize the combination of nnin + msisdn</p>"
+            , tags = {"Activation without Code Device"})
+    @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
+    @ApiResponse(responseCode = "400", description = "In case of error")
+    @ApiResponse(responseCode = "500", description = "In case of error",
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+    )
+    @Path("selfservice/send_verification_code")
+    @POST
+    Response selfServiceSendVerificationCode(
+            @Parameter(description = DESCRIPTION_SIGNATURE,
+                    example = EXAMPLE_SIGNATURE,
+                    required = true)
+            @HeaderParam(SIGNATURE) String httpSignature,
+            @Parameter(description = DESCRIPTION_DATE,
+                    example = EXAMPLE_DATE,
+                    required = true)
+            @HeaderParam(DATE) String date,
+            @Parameter(description = DESCRIPTION_DIGEST,
+                    example = EXAMPLE_DIGEST,
+                    required = true)
+            @HeaderParam(DIGEST) String digest,
+            @RequestBody(description = "Verification code and msisdn", required = true)
+                    SendVerificationCodeRequestBody selfserviceSendVerificationCodeRequestBody
+    );
+
+    @Operation(summary = "Send codewords to an endUser"
+            , description = "request distribution of code words to be sent to a user." +
+            " Upon receiving a request on this end-point, the RA should distribute the provided " +
+            "code through the channel indicated, or return an error-code."
+            , tags = {"Activation without Code Device"})
+    @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
+    @ApiResponse(responseCode = "400", description = "In case of error")
+    @ApiResponse(responseCode = "500", description = "In case of error",
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+    )
+    @Path("selfservice/send_code_words")
+    @POST
+    Response selfServiceSendCodeWords(
+            @Parameter(description = DESCRIPTION_SIGNATURE,
+                    example = EXAMPLE_SIGNATURE,
+                    required = true)
+            @HeaderParam(SIGNATURE) String httpSignature,
+            @Parameter(description = DESCRIPTION_DATE,
+                    example = EXAMPLE_DATE,
+                    required = true)
+            @HeaderParam(DATE) String date,
+            @Parameter(description = DESCRIPTION_DIGEST,
+                    example = EXAMPLE_DIGEST,
+                    required = true)
+            @HeaderParam(DIGEST) String digest,
+            @RequestBody(description = "Activation codes and how to distribute", required = true)
+                    SendCodeWordsRequestBody sendCodeWordsRequestBody
+    );
+
+    @Operation(summary = "Prohibit change of endUser password"
+            , description = "signal to the RA that self-service activation has reached the point where password " +
+            "change (automated or manual) MUST be prohibited until the provided timestamp, effective immediately."
+            , tags = {"Activation without Code Device"})
+    @ApiResponse(responseCode = "200", description = "Time when password was last reset",
+            content = @Content(schema = @Schema(implementation = PasswordQuarantineResponse.class))
+    )
+    @ApiResponse(responseCode = "400", description = "In case of error")
+    @ApiResponse(responseCode = "500", description = "In case of error",
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+    )
+    @Path("selfservice/password_quarantine")
+    @POST
+    Response selfServicePasswordQuarantine(
+            @Parameter(description = DESCRIPTION_SIGNATURE,
+                    example = EXAMPLE_SIGNATURE,
+                    required = true)
+            @HeaderParam(SIGNATURE) String httpSignature,
+            @Parameter(description = DESCRIPTION_DATE,
+                    example = EXAMPLE_DATE,
+                    required = true)
+            @HeaderParam(DATE) String date,
+            @Parameter(description = DESCRIPTION_DIGEST,
+                    example = EXAMPLE_DIGEST,
+                    required = true)
+            @HeaderParam(DIGEST) String digest,
+            @RequestBody(description = "How long to quarantine the password", required = true)
+                    PasswordQuarantineRequestBody passwordQuarantineRequestBody
+    );
+
+    @Operation(summary = "Tell endUser that BankID App is activated"
+            , description = "Request notification of the endUser that his BankID App instance is activated"
+            , tags = {"Activation without Code Device"}
+    )
+    @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
+    @ApiResponse(responseCode = "400", description = "In case of error")
+    @ApiResponse(responseCode = "500", description = "In case of error",
+            content = @Content(schema = @Schema(implementation = NotifyUserOfActivationErrorResponse.class))
+    )
+    @Path("notify_user_of_activation")
+    @POST
+    Response notifyUserOfActivation(
+            @Parameter(description = DESCRIPTION_SIGNATURE,
+                    example = EXAMPLE_SIGNATURE,
+                    required = true)
+            @HeaderParam(SIGNATURE) String httpSignature,
+            @Parameter(description = DESCRIPTION_DATE,
+                    example = EXAMPLE_DATE,
+                    required = true)
+            @HeaderParam(DATE) String date,
+            @Parameter(description = DESCRIPTION_DIGEST,
+                    example = EXAMPLE_DIGEST,
+                    required = true)
+            @HeaderParam(DIGEST) String digest,
+            @RequestBody(description = "Activation code metadata", required = true)
+                    NotifyUserOfActivationRequestBody notifyUserOfActivationRequestBody
     );
 }

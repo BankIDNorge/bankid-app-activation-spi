@@ -1,120 +1,74 @@
 openapi: 3.0.1
 info:
-  title: Integration of BankID app with bank's BankID RA service
-  description: |-
-    Defines methods needed to be implemented by Registration Authority service in banks wanting to add BankID app as an OTP mechanism for their BankID Netcentric users.
-
-    If an RA service implements these methods, than the activation of an BankID app will use them to connect the BankID app with the endUser's BankID.
+  title: Integration of BankID App with bank's BankID RA service
+  description: Defines methods needed to be implemented by a Registration Authority
+    service in banks wanting to add BankID App as an OTP mechanism for their BankID
+    Netcentric users.<p>If an RA service implements these methods, than the activation
+    of an BankID App will use them to connect the BankID App with the endUser's BankID.</p>
   version: "1.2"
+servers:
+- url: https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp
+  description: Preprod Ra-lite
+  variables: {}
 tags:
-- name: RaRequirements
-  description: Administrate (BankID app OTP, Netcentric BankID) relation in endUser's
-    bank's RA
+- name: Basic RA Requirements
+  description: Adds or deletes BankID App from an endUser's BankID
+- name: Activation without Code Device
+  description: Activation of BankID App without no other Code Device
 paths:
-  /external/ra:
+  /healthcheck:
     get:
       tags:
-      - RaRequirements
-      description: Checks whether an endUser has BankID app enabled as an OTP mechanism
-        for at least one of his BankIDs in a given bank
-      operationId: getBappOtpStatus
-      parameters:
-      - name: Signature
-        in: header
-        description: The Signature element, as described in https://tools.ietf.org/html/draft-cavage-http-signatures-12
-        required: true
-        schema:
-          type: string
-        example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
-          date x-client-clientname x-dataownerorgid x-client-requestid x-customerid",signature="o7zK892...."
-      - name: Date
-        in: header
-        description: 'The date element, timezone GMT, locale english, Format description
-          in Java is: ''EEE, dd MMM yyyy HH:mm:ss zzz'''
-        required: true
-        schema:
-          type: string
-        example: Mon, 16 Sep 2019 12:12:21 GMT
-      - name: X-CLIENT-CLIENTNAME
-        in: header
-        description: Client calling this method, constant value
-        required: true
-        schema:
-          type: string
-        example: vipps-bapp-client
-      - name: X-DATAOWNERORGID
-        in: header
-        description: Originator/bank-number for endUser's bankID, valid BankID ODS
-          number
-        required: true
-        schema:
-          type: string
-        example: 3625
-      - name: X-CUSTOMERID
-        in: header
-        description: EndUser's Norwegian national identification number, string of
-          11 digits
-        required: true
-        schema:
-          type: string
-        example: 11111111016
+      - Activation without Code Device
+      summary: Health check of the RA application
+      description: Checks that the RA is capable of handling endpoints declared here
+      operationId: healthCheck
       responses:
         200:
-          description: If status returned is valid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OTPStatusResponse'
-        400:
-          description: In case of error
+          description: RA is healthy
         500:
-          description: In case of error
+          description: RA is not healthy
+  /add:
     put:
       tags:
-      - RaRequirements
-      description: Adds BankID app to an endUser's BankID OTP mechanisms in a given
+      - Basic RA Requirements
+      summary: Adds BankID App to an endUser
+      description: Adds BankID App to an endUser's BankID OTP mechanisms in a given
         bank
       operationId: addBappOtp
       parameters:
       - name: Signature
         in: header
-        description: The Signature element, as described in https://tools.ietf.org/html/draft-cavage-http-signatures-12
+        description: The Signature element, as described in <a href="https://tools.ietf.org/html/draft-cavage-http-signatures-12">Internet-Draft
+          - Signing HTTP Messages</a>.
         required: true
         schema:
           type: string
         example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
-          date x-client-clientname x-dataownerorgid x-client-requestid x-customerid",signature="o7zK892...."
+          date digest",signature="o7zK892...."
       - name: Date
         in: header
-        description: 'The date element, timezone GMT, locale english, Format description
-          in Java is: ''EEE, dd MMM yyyy HH:mm:ss zzz'''
+        description: 'The date element, required format is the format named ''preferred''
+          specified in <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">RFC
+          7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>.<p><b>Implementation
+          tips:</b> Format in Java is ''EEE, dd MMM yyyy HH:mm:ss zzz'', locale english.</p>'
         required: true
         schema:
           type: string
         example: Mon, 16 Sep 2019 12:12:21 GMT
-      - name: X-CLIENT-CLIENTNAME
+      - name: Digest
         in: header
-        description: Client calling this method, constant value
+        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
+          in Java returns an object which is not thread safe</p>
         required: true
         schema:
           type: string
-        example: vipps-bapp-client
-      - name: X-DATAOWNERORGID
-        in: header
-        description: Originator/bank-number for endUser's bankID, valid BankID ODS
-          number
-        required: true
-        schema:
-          type: string
-        example: 3625
-      - name: X-CUSTOMERID
-        in: header
-        description: EndUser's Norwegian national identification number, string of
-          11 digits
-        required: true
-        schema:
-          type: string
-        example: 11111111016
+        example: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthenticationBody'
       responses:
         200:
           description: If status returned is valid
@@ -126,52 +80,107 @@ paths:
           description: In case of error
         500:
           description: In case of error
-    delete:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleErrorResponse'
+  /status:
+    put:
       tags:
-      - RaRequirements
-      description: Removes BankID app as an endUser's OTP mechanism for at least one
+      - Basic RA Requirements
+      summary: Gets the BankID App OTP status for an endUser
+      description: Checks whether an endUser has BankID App enabled as an OTP mechanism
+        for at least one of his BankIDs in a given bank
+      operationId: getBappOtpStatus
+      parameters:
+      - name: Signature
+        in: header
+        description: The Signature element, as described in <a href="https://tools.ietf.org/html/draft-cavage-http-signatures-12">Internet-Draft
+          - Signing HTTP Messages</a>.
+        required: true
+        schema:
+          type: string
+        example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
+          date digest",signature="o7zK892...."
+      - name: Date
+        in: header
+        description: 'The date element, required format is the format named ''preferred''
+          specified in <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">RFC
+          7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>.<p><b>Implementation
+          tips:</b> Format in Java is ''EEE, dd MMM yyyy HH:mm:ss zzz'', locale english.</p>'
+        required: true
+        schema:
+          type: string
+        example: Mon, 16 Sep 2019 12:12:21 GMT
+      - name: Digest
+        in: header
+        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
+          in Java returns an object which is not thread safe</p>
+        required: true
+        schema:
+          type: string
+        example: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthenticationBody'
+      responses:
+        200:
+          description: If status returned is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OTPStatusResponse'
+        400:
+          description: In case of error
+        500:
+          description: In case of error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleErrorResponse'
+  /remove:
+    put:
+      tags:
+      - Basic RA Requirements
+      summary: Removes BankID App from an endUser
+      description: Removes BankID App as an endUser's OTP mechanism for at least one
         of his BankIDs in a given bank
       operationId: removeBappOtp
       parameters:
       - name: Signature
         in: header
-        description: The Signature element, as described in https://tools.ietf.org/html/draft-cavage-http-signatures-12
+        description: The Signature element, as described in <a href="https://tools.ietf.org/html/draft-cavage-http-signatures-12">Internet-Draft
+          - Signing HTTP Messages</a>.
         required: true
         schema:
           type: string
         example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
-          date x-client-clientname x-dataownerorgid x-client-requestid x-customerid",signature="o7zK892...."
+          date digest",signature="o7zK892...."
       - name: Date
         in: header
-        description: 'The date element, timezone GMT, locale english, Format description
-          in Java is: ''EEE, dd MMM yyyy HH:mm:ss zzz'''
+        description: 'The date element, required format is the format named ''preferred''
+          specified in <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">RFC
+          7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>.<p><b>Implementation
+          tips:</b> Format in Java is ''EEE, dd MMM yyyy HH:mm:ss zzz'', locale english.</p>'
         required: true
         schema:
           type: string
         example: Mon, 16 Sep 2019 12:12:21 GMT
-      - name: X-CLIENT-CLIENTNAME
+      - name: Digest
         in: header
-        description: Client calling this method, constant value
+        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
+          in Java returns an object which is not thread safe</p>
         required: true
         schema:
           type: string
-        example: vipps-bapp-client
-      - name: X-DATAOWNERORGID
-        in: header
-        description: Originator/bank-number for endUser's bankID, valid BankID ODS
-          number
-        required: true
-        schema:
-          type: string
-        example: 3625
-      - name: X-CUSTOMERID
-        in: header
-        description: EndUser's Norwegian national identification number, string of
-          11 digits
-        required: true
-        schema:
-          type: string
-        example: 11111111016
+        example: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthenticationBody'
       responses:
         200:
           description: If status returned is valid
@@ -183,6 +192,295 @@ paths:
           description: In case of error
         500:
           description: In case of error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleErrorResponse'
+  /selfservice/send_verification_code:
+    post:
+      tags:
+      - Activation without Code Device
+      summary: Request distribution of a verification code to be sent to an endUser.
+      description: <p>Endpoint to request distribution of an a verification code to
+        be sent to an endUser. Upon receiving a request on this end-point, the RA
+        should distribute the provided code over sms or return an error-code.</p><p>The
+        RA should reject requests if they do not recognize the combination of nnin
+        + msisdn</p>
+      operationId: selfServiceSendVerificationCode
+      parameters:
+      - name: Signature
+        in: header
+        description: The Signature element, as described in <a href="https://tools.ietf.org/html/draft-cavage-http-signatures-12">Internet-Draft
+          - Signing HTTP Messages</a>.
+        required: true
+        schema:
+          type: string
+        example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
+          date digest",signature="o7zK892...."
+      - name: Date
+        in: header
+        description: 'The date element, required format is the format named ''preferred''
+          specified in <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">RFC
+          7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>.<p><b>Implementation
+          tips:</b> Format in Java is ''EEE, dd MMM yyyy HH:mm:ss zzz'', locale english.</p>'
+        required: true
+        schema:
+          type: string
+        example: Mon, 16 Sep 2019 12:12:21 GMT
+      - name: Digest
+        in: header
+        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
+          in Java returns an object which is not thread safe</p>
+        required: true
+        schema:
+          type: string
+        example: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+      requestBody:
+        description: Verification code and msisdn
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendVerificationCodeRequestBody'
+        required: true
+      responses:
+        200:
+          description: If all ok, no data is returned
+        400:
+          description: In case of error
+        500:
+          description: In case of error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleErrorResponse'
+  /selfservice/password_quarantine:
+    post:
+      tags:
+      - Activation without Code Device
+      summary: Prohibit change of endUser password
+      description: signal to the RA that self-service activation has reached the point
+        where password change (automated or manual) MUST be prohibited until the provided
+        timestamp, effective immediately.
+      operationId: selfServicePasswordQuarantine
+      parameters:
+      - name: Signature
+        in: header
+        description: The Signature element, as described in <a href="https://tools.ietf.org/html/draft-cavage-http-signatures-12">Internet-Draft
+          - Signing HTTP Messages</a>.
+        required: true
+        schema:
+          type: string
+        example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
+          date digest",signature="o7zK892...."
+      - name: Date
+        in: header
+        description: 'The date element, required format is the format named ''preferred''
+          specified in <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">RFC
+          7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>.<p><b>Implementation
+          tips:</b> Format in Java is ''EEE, dd MMM yyyy HH:mm:ss zzz'', locale english.</p>'
+        required: true
+        schema:
+          type: string
+        example: Mon, 16 Sep 2019 12:12:21 GMT
+      - name: Digest
+        in: header
+        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
+          in Java returns an object which is not thread safe</p>
+        required: true
+        schema:
+          type: string
+        example: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+      requestBody:
+        description: How long to quarantine the password
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordQuarantineRequestBody'
+        required: true
+      responses:
+        200:
+          description: Time when password was last reset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordQuarantineResponse'
+        400:
+          description: In case of error
+        500:
+          description: In case of error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleErrorResponse'
+  /notify_user_of_activation:
+    post:
+      tags:
+      - Activation without Code Device
+      summary: Tell endUser that BankID App is activated
+      description: Request notification of the endUser that his BankID App instance
+        is activated
+      operationId: notifyUserOfActivation
+      parameters:
+      - name: Signature
+        in: header
+        description: The Signature element, as described in <a href="https://tools.ietf.org/html/draft-cavage-http-signatures-12">Internet-Draft
+          - Signing HTTP Messages</a>.
+        required: true
+        schema:
+          type: string
+        example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
+          date digest",signature="o7zK892...."
+      - name: Date
+        in: header
+        description: 'The date element, required format is the format named ''preferred''
+          specified in <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">RFC
+          7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>.<p><b>Implementation
+          tips:</b> Format in Java is ''EEE, dd MMM yyyy HH:mm:ss zzz'', locale english.</p>'
+        required: true
+        schema:
+          type: string
+        example: Mon, 16 Sep 2019 12:12:21 GMT
+      - name: Digest
+        in: header
+        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
+          in Java returns an object which is not thread safe</p>
+        required: true
+        schema:
+          type: string
+        example: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+      requestBody:
+        description: Activation code metadata
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotifyUserOfActivationRequestBody'
+        required: true
+      responses:
+        200:
+          description: If all ok, no data is returned
+        400:
+          description: In case of error
+        500:
+          description: In case of error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotifyUserOfActivationErrorResponse'
+  /selfservice/check_user:
+    post:
+      tags:
+      - Activation without Code Device
+      summary: Check two-channel options for endUser
+      description: <p>Endpoint to check if a specific user is eligible from single
+        originator for self-service activation.</p><p>The RA should check if the provided
+        phone number is registered for the user, but return the other information
+        regardless.
+      operationId: selfServiceCheckUser
+      parameters:
+      - name: Signature
+        in: header
+        description: The Signature element, as described in <a href="https://tools.ietf.org/html/draft-cavage-http-signatures-12">Internet-Draft
+          - Signing HTTP Messages</a>.
+        required: true
+        schema:
+          type: string
+        example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
+          date digest",signature="o7zK892...."
+      - name: Date
+        in: header
+        description: 'The date element, required format is the format named ''preferred''
+          specified in <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">RFC
+          7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>.<p><b>Implementation
+          tips:</b> Format in Java is ''EEE, dd MMM yyyy HH:mm:ss zzz'', locale english.</p>'
+        required: true
+        schema:
+          type: string
+        example: Mon, 16 Sep 2019 12:12:21 GMT
+      - name: Digest
+        in: header
+        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
+          in Java returns an object which is not thread safe</p>
+        required: true
+        schema:
+          type: string
+        example: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+      requestBody:
+        description: Activation code and how to distribute
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SelfServiceCheckuserRequestBody'
+        required: true
+      responses:
+        200:
+          description: If status returned is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfServiceCheckUserResponse'
+        400:
+          description: In case of error
+        500:
+          description: In case of error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleErrorResponse'
+  /selfservice/send_code_words:
+    post:
+      tags:
+      - Activation without Code Device
+      summary: Send codewords to an endUser
+      description: request distribution of code words to be sent to a user. Upon receiving
+        a request on this end-point, the RA should distribute the provided code through
+        the channel indicated, or return an error-code.
+      operationId: selfServiceSendCodeWords
+      parameters:
+      - name: Signature
+        in: header
+        description: The Signature element, as described in <a href="https://tools.ietf.org/html/draft-cavage-http-signatures-12">Internet-Draft
+          - Signing HTTP Messages</a>.
+        required: true
+        schema:
+          type: string
+        example: keyId="fa998090",algorithm="rsa-sha256",headers="(request-target)
+          date digest",signature="o7zK892...."
+      - name: Date
+        in: header
+        description: 'The date element, required format is the format named ''preferred''
+          specified in <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">RFC
+          7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>.<p><b>Implementation
+          tips:</b> Format in Java is ''EEE, dd MMM yyyy HH:mm:ss zzz'', locale english.</p>'
+        required: true
+        schema:
+          type: string
+        example: Mon, 16 Sep 2019 12:12:21 GMT
+      - name: Digest
+        in: header
+        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
+          in Java returns an object which is not thread safe</p>
+        required: true
+        schema:
+          type: string
+        example: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+      requestBody:
+        description: Activation codes and how to distribute
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendCodeWordsRequestBody'
+        required: true
+      responses:
+        200:
+          description: If all ok, no data is returned
+        400:
+          description: In case of error
+        500:
+          description: In case of error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleErrorResponse'
 components:
   schemas:
     OTPAddResponse:
@@ -190,6 +488,13 @@ components:
       properties:
         status:
           type: string
+          description: Status value for add operation<ul><li>ENABLED - BAPP is enabled
+            for the endUser</li><li>NOT_ENABLED - Failed to enable BAPP for the customer</li><li>ALREADY_ENABLED
+            - BAPP was already enabled</li><li>NOT_AVAILABLE - BAPP is not available
+            for the bank</li><li>BANK_ID_NOT_AVAILABLE - endUser doesn't have active
+            BankID</li><li>BLOCKED_BY_BANK - endUser is not allowed to use BAPP</li><li>BLOCKED_IN_ODS
+            - BAPP is connected to the BankID, but was blocked by ODS because of wrong
+            attempts</li></ul>
           enum:
           - ENABLED
           - NOT_ENABLED
@@ -199,11 +504,45 @@ components:
           - BLOCKED_BY_BANK
           - BLOCKED_IN_ODS
       description: The result of trying to enable BankID app for an endUser's BankID
+    SimpleErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      description: Result when there is only an error code in return
+    AuthenticationBody:
+      type: object
+      properties:
+        client_name:
+          type: string
+          description: Name of client sending the request
+          example: vipps-bapp-client
+        request_id:
+          type: string
+          description: A unique identifier pr. request, used for log correlation
+          example: e6dccaf0-c72f-48d9-9dc8-665e51e08e47
+        originator_id:
+          type: string
+          description: Originator/bank-number for endUser's bankID, valid BankID ODS
+            number
+          example: "9980"
+        nnin:
+          type: string
+          description: EndUser's Norwegian national identification number, string
+            of 11 digits
+          example: "11111111016"
+      description: Minimal body for authenticating and authorizing a request
     OTPStatusResponse:
       type: object
       properties:
         status:
           type: string
+          description: Status value for endUser's BAPP <ul><li>NOT_ENABLED - BAPP
+            is not enabled, but could be</li><li>ENABLED - BAPP is enabled for the
+            endUser</li><li>NOT_AVAILABLE - BAPP is not available for the bank</li><li>BANK_ID_NOT_AVAILABLE
+            - endUser doesn't have active BankID</li><li>BLOCKED_BY_BANK - endUser
+            is not allowed to use BAPP</li><li>BLOCKED_IN_ODS - BAPP is connected
+            to the BankID, but was blocked by ODS because of wrong attempts</li></ul>
           enum:
           - NOT_ENABLED
           - ENABLED
@@ -218,8 +557,315 @@ components:
       properties:
         status:
           type: string
+          description: Status value for the delete operation <ul><li>DELETED - BAPP
+            was successfully deleted</li><li>NOT_ENABLED - BAPP hasn't been enabled
+            for the endUser, nothing to delete.</li><li>BLOCKED_IN_ODS - BAPP wasn't
+            deleted, since it is present and blocked by ODS because of wrong attempts</li></ul>
           enum:
           - DELETED
           - NOT_ENABLED
           - BLOCKED_IN_ODS
       description: 'The result of trying to remove BankID app from an endUser''s BankID '
+    Msisdn:
+      type: object
+      properties:
+        cc_count:
+          type: integer
+          description: Country code length, this is provided purely for convenience.
+          format: int32
+          example: 2
+        e164_number:
+          type: string
+          description: Phone number, always provided with country code and without
+            leading zeroes or +.
+          example: "4793123456"
+      description: 'Phone number to standard: <a href="https://www.itu.int/rec/T-REC-E.164-201011-I/en">T-REC-E.164-201011-I</a>'
+    SendVerificationCodeRequestBody:
+      type: object
+      properties:
+        client_name:
+          type: string
+          description: Name of client sending the request
+          example: vipps-bapp-client
+        request_id:
+          type: string
+          description: A unique identifier pr. request, used for log correlation
+          example: e6dccaf0-c72f-48d9-9dc8-665e51e08e47
+        originator_id:
+          type: string
+          description: Originator/bank-number for endUser's bankID, valid BankID ODS
+            number
+          example: "9980"
+        nnin:
+          type: string
+          description: EndUser's Norwegian national identification number, string
+            of 11 digits
+          example: "11111111016"
+        activation_id:
+          type: string
+          description: The id of this activation attempt, used for for logging, will
+            be the same for both codes
+          format: uuid
+        msisdn:
+          $ref: '#/components/schemas/Msisdn'
+        locale:
+          type: string
+          description: Locale of initiating app, either "no" for Norwegian and Norwegian
+            dialects, otherwise "en"<h5>(the 'no' value is shown as 'false', openapi
+            nuisance)</h5>
+          example: en
+          enum:
+          - no
+          - en
+        verification_code:
+          type: string
+          description: Four digit code
+        exp:
+          type: integer
+          description: Time when code expire, ms since epoch, UTC
+          format: int64
+      description: Request body content for asking an RA to send verification code
+        to enduser
+    PasswordQuarantineResponse:
+      type: object
+      properties:
+        pw_reset_timestamp:
+          type: integer
+          description: Time when user's password was last reset, ms since epoch, UTC
+          format: int64
+      description: Response when quarantining an endUser password
+    PasswordQuarantineRequestBody:
+      type: object
+      properties:
+        client_name:
+          type: string
+          description: Name of client sending the request
+          example: vipps-bapp-client
+        request_id:
+          type: string
+          description: A unique identifier pr. request, used for log correlation
+          example: e6dccaf0-c72f-48d9-9dc8-665e51e08e47
+        originator_id:
+          type: string
+          description: Originator/bank-number for endUser's bankID, valid BankID ODS
+            number
+          example: "9980"
+        nnin:
+          type: string
+          description: EndUser's Norwegian national identification number, string
+            of 11 digits
+          example: "11111111016"
+        activation_id:
+          type: string
+          description: The id of this activation attempt, used for for logging
+          format: uuid
+        quarantine_until:
+          type: integer
+          description: Time when quarantine expire, ms since epoch, UTC
+          format: int64
+      description: Request body content for quarantining the user password
+    NotifyUserOfActivationErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        status:
+          type: string
+          enum:
+          - unknown_subject
+          - internal_error
+      description: The result of asking an ra to notify a user of activation, used
+        in case of some error
+    ActivationMetadata:
+      type: object
+      properties:
+        flow:
+          type: string
+          description: 'The flow used for activation, meanings:<ul><li> - single_activation_code:
+            A single activation code provided over a secure channel. </li><li> - activation_codes:
+            Activation codes provided over two insecure channels. </li><li> - bankid_auth:
+            Activation through a BankID authentication. </li></ul>'
+          example: activation_codes
+          enum:
+          - single_activation_code
+          - activation_codes
+          - bankid_auth
+        via_distribution_methods:
+          type: array
+          description: 'The distribution methods used during activation.<p>If flow
+            is <i>single_activation_code</i> or <i>bankid_auth<i/>, this will be an
+            empty array.</p><p>Otherwise it will contain all the distribution method
+            hints used to send a code, including the phone-number which will be masked
+            as follows: <i>+CCC ******DD</i>, where CCC is the country code and DD
+            is the last two digits of the phone-number.</p><p>The length will either
+            be 0 or &ge; 2.</p>'
+          items:
+            type: string
+            description: 'The distribution methods used during activation.<p>If flow
+              is <i>single_activation_code</i> or <i>bankid_auth<i/>, this will be
+              an empty array.</p><p>Otherwise it will contain all the distribution
+              method hints used to send a code, including the phone-number which will
+              be masked as follows: <i>+CCC ******DD</i>, where CCC is the country
+              code and DD is the last two digits of the phone-number.</p><p>The length
+              will either be 0 or &ge; 2.</p>'
+        locale:
+          type: string
+          description: Locale of initiating app, either "no" for Norwegian and Norwegian
+            dialects, otherwise "en"<h5>(the 'no' value is shown as 'false', openapi
+            nuisance)</h5>
+          example: en
+          enum:
+          - no
+          - en
+        human_readable:
+          type: object
+          additionalProperties:
+            type: string
+            description: Map of localized strings explaining how the device was activated
+            example: '{"no":"med aktiveringskoder gitt på email til que***@xyz.no
+              og på sms til XXX XX X42","en":"using activation codes by email to que***@xyz.no
+              and sms to XXX XX X42"}'
+          description: Map of localized strings explaining how the device was activated
+          example:
+            no: med aktiveringskoder gitt på email til que***@xyz.no og på sms til
+              XXX XX X42
+            en: using activation codes by email to que***@xyz.no and sms to XXX XX
+              X42
+      description: Information about the activation
+    NotifyUserOfActivationRequestBody:
+      type: object
+      properties:
+        client_name:
+          type: string
+          description: Name of client sending the request
+          example: vipps-bapp-client
+        request_id:
+          type: string
+          description: A unique identifier pr. request, used for log correlation
+          example: e6dccaf0-c72f-48d9-9dc8-665e51e08e47
+        originator_id:
+          type: string
+          description: Originator/bank-number for endUser's bankID, valid BankID ODS
+            number
+          example: "9980"
+        nnin:
+          type: string
+          description: EndUser's Norwegian national identification number, string
+            of 11 digits
+          example: "11111111016"
+        activation_id:
+          type: string
+          description: The id of this activation attempt, used for for logging
+          format: uuid
+        activationMetadata:
+          $ref: '#/components/schemas/ActivationMetadata'
+      description: Request body content for asking an RA to send a notification to
+        an endUser
+    DistributionMethod:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'Type of distribution<ul><li> - email:  1-3 unmasked characters
+            + "(...)" @ domain.topdomain, eg. dei(...)@gmail.com </li><li> - official_address:
+            No hint, details on the address must not be exposed. </li></ul>'
+          example: email
+          enum:
+          - email
+          - official_address
+        id:
+          type: string
+          description: An id for this distribution method, must be unique within this
+            response
+        hint:
+          type: string
+          description: Hint to user, ex. "que****@hotmail.com" or empty string on
+            official_address
+        last_verified:
+          type: integer
+          description: When was this contact information last verified by the user,
+            ms since epoch, UTC
+          format: int64
+        last_modified:
+          type: integer
+          description: When was this contact information last modified by the user,
+            ms since epoch, UTC
+          format: int64
+      description: 'Declaration for Methods for distribution and '
+    SelfServiceCheckUserResponse:
+      type: object
+      properties:
+        pw_reset_timestamp:
+          type: integer
+          description: Time when the user's password was last reset, ms since epoch,
+            UTC
+          format: int64
+        correct_msisdn:
+          type: boolean
+          description: True if the given phone number matches the what is registered
+            for the given user
+        distribution_methods:
+          type: array
+          description: List of distribution methods
+          items:
+            $ref: '#/components/schemas/DistributionMethod'
+      description: The result of querying RA about endUser distribution methods
+    SelfServiceCheckuserRequestBody:
+      type: object
+      properties:
+        client_name:
+          type: string
+          description: Name of client sending the request
+          example: vipps-bapp-client
+        request_id:
+          type: string
+          description: A unique identifier pr. request, used for log correlation
+          example: e6dccaf0-c72f-48d9-9dc8-665e51e08e47
+        originator_id:
+          type: string
+          description: Originator/bank-number for endUser's bankID, valid BankID ODS
+            number
+          example: "9980"
+        nnin:
+          type: string
+          description: EndUser's Norwegian national identification number, string
+            of 11 digits
+          example: "11111111016"
+        activation_id:
+          type: string
+          description: The id of this activation attempt, used for for logging
+          format: uuid
+        msisdn:
+          $ref: '#/components/schemas/Msisdn'
+      description: Request body content for asking an RA about endUser distribution
+        methods
+    SendCodeWordsRequestBody:
+      type: object
+      properties:
+        activation_id:
+          type: string
+          description: The id of this activation attempt, used for for logging, will
+            be the same for both codes
+          format: uuid
+        distribution_method:
+          type: string
+          description: One of the method identifiers returned from selfservice/check_user
+            call
+        locale:
+          type: string
+          description: Locale of initiating app, either "no" for Norwegian and Norwegian
+            dialects, otherwise "en"<h5>(the 'no' value is shown as 'false', openapi
+            nuisance)</h5>
+          example: en
+          enum:
+          - no
+          - en
+        code_words:
+          type: string
+          description: The two code words to distribute
+        exp:
+          type: integer
+          description: Time when code expire, ms since epoch, UTC
+          format: int64
+      description: Request body content for asking an RA to send code words to an
+        endUser
