@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
-@Schema(description = "Request body content for asking an RA to send verification code to enduser")
+@Schema(description = "Request body content for asking an RA to send verification code to end user")
 public class SendVerificationCodeRequestBody extends AuthenticationBody {
 
     @Schema(description = "The id of this activation attempt, used for for logging, will be the same for both codes")

@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
-@Schema(description = "Request body content for asking an RA about endUser distribution methods")
+@Schema(description = "Request body content for asking an RA about end user distribution methods")
 public class SelfServiceCheckuserRequestBody extends AuthenticationBody {
 
     @Schema(description = "The id of this activation attempt, used for for logging")

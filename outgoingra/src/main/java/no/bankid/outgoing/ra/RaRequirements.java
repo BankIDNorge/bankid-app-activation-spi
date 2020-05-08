@@ -27,18 +27,16 @@ import static no.bankid.outgoing.ra.HttpSignatureHeaders.SIGNATURE;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "Integration of BankID App with bank's BankID RA service",
+                title = "BankID RA Service Provider Interface (SPI) for activation of BankID App",
                 version = "1.2",
-                description = "Defines methods needed to be implemented by a Registration Authority service in banks " +
-                        "wanting to add BankID App as an OTP mechanism for their BankID Netcentric users.<p>" +
-                        "If an RA service implements these methods, than the activation of an BankID App will use " +
-                        "them to connect the BankID App with the endUser's BankID.</p>"
+                description = "Defines the interface to be provided by a Registration Authority service to " +
+                        "support activation of BankID App as a HA2 element for an end user's Netcentric BankID."
         ),
         tags = {
-                @Tag(name = "Basic RA Requirements",
-                        description = "Adds or deletes BankID App from an endUser's BankID"),
+                @Tag(name = "OTP administration",
+                        description = "Adds or deletes BankID App from an end user's BankID"),
                 @Tag(name = "Activation without Code Device",
-                        description = "Activation of BankID App without no other Code Device")
+                        description = "Activation of BankID App without a Code Device")
 
         },
         servers = {
@@ -68,13 +66,13 @@ public interface RaRequirements {
             "<p><b>Implementation tips:</b>MessageDigest.getIinstance(\"SHA-256\") in Java returns an object which is not thread safe</p>";
     String EXAMPLE_DIGEST = "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=";
 
-    @Operation(summary = "Adds BankID App to an endUser"
-            , description = "Adds BankID App to an endUser's BankID OTP mechanisms in a given bank"
-            , tags = {"Basic RA Requirements"}
+    @Operation(summary = "Adds BankID App to an end user"
+            , description = "Adds BankID App to an end user's BankID OTP mechanisms in a given bank"
+            , tags = {"OTP administration"}
     )
 
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
-            content = @Content(schema = @Schema(implementation = OTPAddResponse.class))
+            content = @Content(schema = @Schema(implementation = AddBappResponse.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
@@ -98,13 +96,13 @@ public interface RaRequirements {
             AuthenticationBody authenticationBody
     );
 
-    @Operation(summary = "Gets the BankID App OTP status for an endUser"
-            , description = "Checks whether an endUser has BankID App enabled as an OTP mechanism " +
+    @Operation(summary = "Gets the BankID App OTP status for an end user"
+            , description = "Checks whether an end user has BankID App enabled as an OTP mechanism " +
             "for at least one of his BankIDs in a given bank"
-            , tags = {"Basic RA Requirements"}
+            , tags = {"OTP administration"}
     )
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
-            content = @Content(schema = @Schema(implementation = OTPStatusResponse.class))
+            content = @Content(schema = @Schema(implementation = StatusBappResponse.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
@@ -128,13 +126,13 @@ public interface RaRequirements {
             AuthenticationBody authenticationBody
     );
 
-    @Operation(summary = "Removes BankID App from an endUser"
-            , description = "Removes BankID App as an endUser's OTP mechanism for at least one of " +
+    @Operation(summary = "Removes BankID App from an end user"
+            , description = "Removes BankID App as an end user's OTP mechanism for at least one of " +
             "his BankIDs in a given bank"
-            , tags = {"Basic RA Requirements"}
+            , tags = {"OTP administration"}
     )
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
-            content = @Content(schema = @Schema(implementation = OTPDeleteResponse.class))
+            content = @Content(schema = @Schema(implementation = DeleteBappResponse.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
@@ -174,7 +172,7 @@ public interface RaRequirements {
     @GET
     Response healthCheck();
 
-    @Operation(summary = "Check two-channel options for endUser"
+    @Operation(summary = "Check two-channel options for end user"
             , description =
             "<p>Endpoint to check if a specific user is eligible from single originator for self-service activation.</p>" +
                     "<p>The RA should check if the provided phone number is registered for the user, " +
@@ -206,8 +204,8 @@ public interface RaRequirements {
                     SelfServiceCheckuserRequestBody selfserviceCheckuserRequestBody
     );
 
-    @Operation(summary = "Request distribution of a verification code to be sent to an endUser."
-            , description = "<p>Endpoint to request distribution of an a verification code to be sent to an endUser. " +
+    @Operation(summary = "Request distribution of a verification code to be sent to an end user."
+            , description = "<p>Endpoint to request distribution of an a verification code to be sent to an end user. " +
             "Upon receiving a request on this end-point, the RA should distribute the provided code over " +
             "sms or return an error-code.</p>" +
             "<p>The RA should reject requests if they do not recognize the combination of nnin + msisdn</p>"
@@ -236,7 +234,7 @@ public interface RaRequirements {
                     SendVerificationCodeRequestBody selfserviceSendVerificationCodeRequestBody
     );
 
-    @Operation(summary = "Send codewords to an endUser"
+    @Operation(summary = "Send codewords to an end user"
             , description = "request distribution of code words to be sent to a user." +
             " Upon receiving a request on this end-point, the RA should distribute the provided " +
             "code through the channel indicated, or return an error-code."
@@ -265,7 +263,7 @@ public interface RaRequirements {
                     SendCodeWordsRequestBody sendCodeWordsRequestBody
     );
 
-    @Operation(summary = "Prohibit change of endUser password"
+    @Operation(summary = "Prohibit change of end user password"
             , description = "signal to the RA that self-service activation has reached the point where password " +
             "change (automated or manual) MUST be prohibited until the provided timestamp, effective immediately."
             , tags = {"Activation without Code Device"})
@@ -295,7 +293,7 @@ public interface RaRequirements {
                     PasswordQuarantineRequestBody passwordQuarantineRequestBody
     );
 
-    @Operation(summary = "Tell endUser that BankID App is activated"
+    @Operation(summary = "Tell end user that BankID App is activated"
             , description = "Request notification of the endUser that his BankID App instance is activated"
             , tags = {"Activation without Code Device"}
     )

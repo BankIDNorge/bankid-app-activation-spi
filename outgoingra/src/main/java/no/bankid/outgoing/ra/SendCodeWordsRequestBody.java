@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
-@Schema(description = "Request body content for asking an RA to send code words to an endUser")
-public class SendCodeWordsRequestBody {
+@Schema(description = "Request body content for asking an RA to send code words to an end user")
+public class SendCodeWordsRequestBody extends AuthenticationBody {
     @Schema(description = "The id of this activation attempt, used for for logging, will be the same for both codes")
     public UUID activation_id;
     @Schema(description = "One of the method identifiers returned from selfservice/check_user call")

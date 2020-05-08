@@ -39,7 +39,8 @@
                 <configuration>
                     <outputFileName>swagger</outputFileName>
                     <outputPath>${project.basedir}/../docs</outputPath>
-                    <outputFormat>YAML</outputFormat>
+                    <!-- Both JSON an YAML since swagger-code-gen stumbles with .yaml and enum named no -->
+                    <outputFormat>JSONANDYAML</outputFormat>
                     <resourcePackages>
                         <package>no.bankid</package>
                     </resourcePackages>

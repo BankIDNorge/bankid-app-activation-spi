@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
-@Schema(description = "The result of querying RA about endUser distribution methods")
+@Schema(description = "The result of querying RA about end user distribution methods")
 public class SelfServiceCheckUserResponse {
     @Schema(description = "Declaration for Methods for distribution and ")
     public static class DistributionMethod {
@@ -14,7 +14,9 @@ public class SelfServiceCheckUserResponse {
                 "<li> - official_address: No hint, details on the address must not be exposed. </li>" +
                 "</ul>", example = "email"
         )
-        public enum DistributeBy {email, official_address}
+        public enum DistributeBy {
+            email, official_address
+        }
 
         public DistributeBy type;
         @Schema(description = "An id for this distribution method, must be unique within this response")

@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Map;
 import java.util.UUID;
 
-@Schema(description = "Request body content for asking an RA to send a notification to an endUser")
+@Schema(description = "Request body content for asking an RA to send a notification to an end user")
 public class NotifyUserOfActivationRequestBody extends AuthenticationBody {
     @Schema(description = "Information about the activation")
     public static class ActivationMetadata {
