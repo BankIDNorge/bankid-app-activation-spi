@@ -15,7 +15,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -79,7 +78,7 @@ public interface RaRequirements {
             content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
     )
     @Path("add")
-    @PUT
+    @POST
     Response addBappOtp(
             @Parameter(description = DESCRIPTION_SIGNATURE,
                     example = EXAMPLE_SIGNATURE,
@@ -109,7 +108,7 @@ public interface RaRequirements {
             content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
     )
     @Path("status")
-    @PUT
+    @POST
     Response getBappOtpStatus(
             @Parameter(description = DESCRIPTION_SIGNATURE,
                     example = EXAMPLE_SIGNATURE,
@@ -138,7 +137,7 @@ public interface RaRequirements {
     @ApiResponse(responseCode = "500", description = "In case of error",
             content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
     )
-    @PUT
+    @POST
     @Path("remove")
     Response removeBappOtp(
             @Parameter(description = DESCRIPTION_SIGNATURE,
@@ -166,7 +165,7 @@ public interface RaRequirements {
                     @ApiResponse(
                             responseCode = "500",
                             description = "RA is not healthy")}
-            , tags = {"Activation without Code Device"})
+            , tags = {"OTP administration"})
     @Path("healthcheck")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
@@ -294,8 +293,8 @@ public interface RaRequirements {
     );
 
     @Operation(summary = "Tell end user that BankID App is activated"
-            , description = "Request notification of the endUser that his BankID App instance is activated"
-            , tags = {"Activation without Code Device"}
+            , description = "Request notification of the end user that his BankID App instance is activated"
+            , tags = {"OTP administration"}
     )
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
