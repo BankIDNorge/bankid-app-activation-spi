@@ -2,7 +2,7 @@ package no.bankid.outgoing.ra;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "The result of asking if BankID app is enabled for an enddUser's BankID")
+@Schema(description = "The result of asking if BankID app is enabled for an end user's BankID")
 public class StatusBappResponse {
     @Schema(description = "Status value for end user's BAPP " +
             "<ul>" +

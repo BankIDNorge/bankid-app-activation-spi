@@ -42,7 +42,6 @@ import static no.bankid.outgoing.ra.HttpSignatureHeaders.SIGNATURE;
                 @Server(description = "Preprod Ra-lite",
                         url = "https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp")
         }
-
 )
 
 
