@@ -27,15 +27,19 @@ import static no.bankid.outgoing.ra.HttpSignatureHeaders.SIGNATURE;
 @OpenAPIDefinition(
         info = @Info(
                 title = "BankID RA Service Provider Interface (SPI) for activation of BankID App",
-                version = "1.2",
+                version = "1.3-rc1",
                 description = "Defines the interface to be provided by a Registration Authority service to " +
-                        "support activation of BankID App as a HA2 element for an end user's Netcentric BankID."
+                        "support activation of BankID App as a HA2 element for an end user's Netcentric BankID." +
+                        "<h6>This version corresponds to " +
+                        "'Specification of Solutions for Activation of BankID App as HA2-elements' version v.62</h6>"
         ),
         tags = {
-                @Tag(name = "OTP administration",
+                @Tag(name = RaRequirements.SERVICE_AVAILABILITY,
+                        description = "Checks that the service is available"),
+                @Tag(name = RaRequirements.OTP_ADMINISTRATION,
                         description = "Adds or deletes BankID App from an end user's BankID"),
-                @Tag(name = "Activation without Code Device",
-                        description = "Activation of BankID App without a Code Device")
+                @Tag(name = RaRequirements.ACTIVATION_WITHOUT_CODE_DEVICE),
+                @Tag(name = RaRequirements.ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE)
 
         },
         servers = {
@@ -43,7 +47,6 @@ import static no.bankid.outgoing.ra.HttpSignatureHeaders.SIGNATURE;
                         url = "https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp")
         }
 )
-
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
@@ -64,9 +67,15 @@ public interface RaRequirements {
             "<p><b>Implementation tips:</b>MessageDigest.getIinstance(\"SHA-256\") in Java returns an object which is not thread safe</p>";
     String EXAMPLE_DIGEST = "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=";
 
+
+    String ACTIVATION_WITHOUT_CODE_DEVICE = "Activation without Code Device";
+    String ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE = "Activation without Code Device - Self Service";
+    String OTP_ADMINISTRATION = "OTP administration";
+    String SERVICE_AVAILABILITY = "Service availability";
+
     @Operation(summary = "Adds BankID App to an end user"
             , description = "Adds BankID App to an end user's BankID OTP mechanisms in a given bank"
-            , tags = {"OTP administration"}
+            , tags = {OTP_ADMINISTRATION}
     )
 
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
@@ -97,7 +106,7 @@ public interface RaRequirements {
     @Operation(summary = "Gets the BankID App OTP status for an end user"
             , description = "Checks whether an end user has BankID App enabled as an OTP mechanism " +
             "for at least one of his BankIDs in a given bank"
-            , tags = {"OTP administration"}
+            , tags = {OTP_ADMINISTRATION}
     )
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
             content = @Content(schema = @Schema(implementation = StatusBappResponse.class))
@@ -127,7 +136,7 @@ public interface RaRequirements {
     @Operation(summary = "Removes BankID App from an end user"
             , description = "Removes BankID App as an end user's OTP mechanism for at least one of " +
             "his BankIDs in a given bank"
-            , tags = {"OTP administration"}
+            , tags = {OTP_ADMINISTRATION}
     )
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
             content = @Content(schema = @Schema(implementation = DeleteBappResponse.class))
@@ -164,7 +173,7 @@ public interface RaRequirements {
                     @ApiResponse(
                             responseCode = "500",
                             description = "RA is not healthy")}
-            , tags = {"OTP administration"})
+            , tags = {SERVICE_AVAILABILITY})
     @Path("healthcheck")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
@@ -175,7 +184,7 @@ public interface RaRequirements {
             "<p>Endpoint to check if a specific user is eligible from single originator for self-service activation.</p>" +
                     "<p>The RA should check if the provided phone number is registered for the user, " +
                     "but return the other information regardless."
-            , tags = {"Activation without Code Device"})
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE})
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
             content = @Content(schema = @Schema(implementation = SelfServiceCheckUserResponse.class))
     )
@@ -199,7 +208,7 @@ public interface RaRequirements {
                     required = true)
             @HeaderParam(DIGEST) String digest,
             @RequestBody(description = "Activation code and how to distribute", required = true)
-                    SelfServiceCheckuserRequestBody selfserviceCheckuserRequestBody
+                    SelfServiceCheckUserRequestBody selfserviceCheckuserRequestBody
     );
 
     @Operation(summary = "Request distribution of a verification code to be sent to an end user."
@@ -207,7 +216,7 @@ public interface RaRequirements {
             "Upon receiving a request on this end-point, the RA should distribute the provided code over " +
             "sms or return an error-code.</p>" +
             "<p>The RA should reject requests if they do not recognize the combination of nnin + msisdn</p>"
-            , tags = {"Activation without Code Device"})
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE})
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
@@ -236,7 +245,7 @@ public interface RaRequirements {
             , description = "request distribution of code words to be sent to a user." +
             " Upon receiving a request on this end-point, the RA should distribute the provided " +
             "code through the channel indicated, or return an error-code."
-            , tags = {"Activation without Code Device"})
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE})
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
@@ -264,7 +273,7 @@ public interface RaRequirements {
     @Operation(summary = "Prohibit change of end user password"
             , description = "signal to the RA that self-service activation has reached the point where password " +
             "change (automated or manual) MUST be prohibited until the provided timestamp, effective immediately."
-            , tags = {"Activation without Code Device"})
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE})
     @ApiResponse(responseCode = "200", description = "Time when password was last reset",
             content = @Content(schema = @Schema(implementation = PasswordQuarantineResponse.class))
     )
@@ -293,7 +302,7 @@ public interface RaRequirements {
 
     @Operation(summary = "Tell end user that BankID App is activated"
             , description = "Request notification of the end user that his BankID App instance is activated"
-            , tags = {"OTP administration"}
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE}
     )
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")

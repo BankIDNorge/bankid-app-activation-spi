@@ -9,7 +9,8 @@ public class SendVerificationCodeRequestBody extends AuthenticationBody {
 
     @Schema(description = "The id of this activation attempt, used for for logging, will be the same for both codes")
     public UUID activation_id;
-    public Msisdn msisdn;
+    @Schema(description = "The alias for the msisdn previously provided in a response from check-user")
+    public String msisdn_reference_id;
     public AppClientLocale locale;
     @Schema(description = "Four digit code")
     public String verification_code;
