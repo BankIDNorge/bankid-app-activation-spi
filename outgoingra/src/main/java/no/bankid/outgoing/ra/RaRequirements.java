@@ -79,11 +79,11 @@ public interface RaRequirements {
     )
 
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
-            content = @Content(schema = @Schema(implementation = AddBappResponse.class))
+            content = @Content(schema = @Schema(implementation = AddBappResponseDTO.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
-            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponseDTO.class))
     )
     @Path("add")
     @POST
@@ -100,7 +100,7 @@ public interface RaRequirements {
                     example = EXAMPLE_DIGEST,
                     required = true)
             @HeaderParam(DIGEST) String digest,
-            AuthenticationBody authenticationBody
+            AuthenticationBodyDTO authenticationBody
     );
 
     @Operation(summary = "Gets the BankID App OTP status for an end user"
@@ -109,11 +109,11 @@ public interface RaRequirements {
             , tags = {OTP_ADMINISTRATION}
     )
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
-            content = @Content(schema = @Schema(implementation = StatusBappResponse.class))
+            content = @Content(schema = @Schema(implementation = StatusBappResponseDTO.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
-            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponseDTO.class))
     )
     @Path("status")
     @POST
@@ -130,7 +130,7 @@ public interface RaRequirements {
                     example = EXAMPLE_DIGEST,
                     required = true)
             @HeaderParam(DIGEST) String digest,
-            AuthenticationBody authenticationBody
+            AuthenticationBodyDTO authenticationBody
     );
 
     @Operation(summary = "Removes BankID App from an end user"
@@ -139,11 +139,11 @@ public interface RaRequirements {
             , tags = {OTP_ADMINISTRATION}
     )
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
-            content = @Content(schema = @Schema(implementation = DeleteBappResponse.class))
+            content = @Content(schema = @Schema(implementation = DeleteBappResponseDTO.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
-            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponseDTO.class))
     )
     @POST
     @Path("remove")
@@ -160,7 +160,7 @@ public interface RaRequirements {
                     example = EXAMPLE_DIGEST,
                     required = true)
             @HeaderParam(DIGEST) String digest,
-            AuthenticationBody authenticationBody
+            AuthenticationBodyDTO authenticationBody
     );
 
     @Operation(
@@ -186,11 +186,11 @@ public interface RaRequirements {
                     "but return the other information regardless."
             , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE})
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
-            content = @Content(schema = @Schema(implementation = SelfServiceCheckUserResponse.class))
+            content = @Content(schema = @Schema(implementation = SelfServiceCheckUserResponseDTO.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
-            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponseDTO.class))
     )
     @Path("selfservice/check_user")
     @POST
@@ -208,7 +208,7 @@ public interface RaRequirements {
                     required = true)
             @HeaderParam(DIGEST) String digest,
             @RequestBody(description = "Activation code and how to distribute", required = true)
-                    SelfServiceCheckUserRequestBody selfserviceCheckuserRequestBody
+                    SelfServiceCheckUserRequestBodyDTO selfserviceCheckuserRequestBody
     );
 
     @Operation(summary = "Request distribution of a verification code to be sent to an end user."
@@ -220,7 +220,7 @@ public interface RaRequirements {
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
-            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponseDTO.class))
     )
     @Path("selfservice/send_verification_code")
     @POST
@@ -238,7 +238,7 @@ public interface RaRequirements {
                     required = true)
             @HeaderParam(DIGEST) String digest,
             @RequestBody(description = "Verification code and msisdn", required = true)
-                    SendVerificationCodeRequestBody selfserviceSendVerificationCodeRequestBody
+                    SendVerificationCodeRequestBodyDTO selfserviceSendVerificationCodeRequestBody
     );
 
     @Operation(summary = "Send codewords to an end user"
@@ -249,7 +249,7 @@ public interface RaRequirements {
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
-            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponseDTO.class))
     )
     @Path("selfservice/send_code_words")
     @POST
@@ -267,7 +267,7 @@ public interface RaRequirements {
                     required = true)
             @HeaderParam(DIGEST) String digest,
             @RequestBody(description = "Activation codes and how to distribute", required = true)
-                    SendCodeWordsRequestBody sendCodeWordsRequestBody
+                    SendCodeWordsRequestBodyDTO sendCodeWordsRequestBody
     );
 
     @Operation(summary = "Prohibit change of end user password"
@@ -275,11 +275,11 @@ public interface RaRequirements {
             "change (automated or manual) MUST be prohibited until the provided timestamp, effective immediately."
             , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE})
     @ApiResponse(responseCode = "200", description = "Time when password was last reset",
-            content = @Content(schema = @Schema(implementation = PasswordQuarantineResponse.class))
+            content = @Content(schema = @Schema(implementation = PasswordQuarantineResponseDTO.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
-            content = @Content(schema = @Schema(implementation = SimpleErrorResponse.class))
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponseDTO.class))
     )
     @Path("selfservice/password_quarantine")
     @POST
@@ -297,7 +297,7 @@ public interface RaRequirements {
                     required = true)
             @HeaderParam(DIGEST) String digest,
             @RequestBody(description = "How long to quarantine the password", required = true)
-                    PasswordQuarantineRequestBody passwordQuarantineRequestBody
+                    PasswordQuarantineRequestBodyDTO passwordQuarantineRequestBody
     );
 
     @Operation(summary = "Tell end user that BankID App is activated"
@@ -307,7 +307,7 @@ public interface RaRequirements {
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
-            content = @Content(schema = @Schema(implementation = NotifyUserOfActivationErrorResponse.class))
+            content = @Content(schema = @Schema(implementation = NotifyUserOfActivationErrorResponseDTO.class))
     )
     @Path("notify_user_of_activation")
     @POST
@@ -325,6 +325,6 @@ public interface RaRequirements {
                     required = true)
             @HeaderParam(DIGEST) String digest,
             @RequestBody(description = "Activation code metadata", required = true)
-                    NotifyUserOfActivationRequestBody notifyUserOfActivationRequestBody
+                    NotifyUserOfActivationRequestBodyDTO notifyUserOfActivationRequestBody
     );
 }

@@ -3,7 +3,7 @@ package no.bankid.outgoing.ra;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Phone number to standard: <a href=\"https://www.itu.int/rec/T-REC-E.164-201011-I/en\">T-REC-E.164-201011-I</a>")
-public class Msisdn {
+public class MsisdnDTO {
     @Schema(description = "Country code length, this is provided purely for convenience.",
             example = "2")
     public int cc_count;

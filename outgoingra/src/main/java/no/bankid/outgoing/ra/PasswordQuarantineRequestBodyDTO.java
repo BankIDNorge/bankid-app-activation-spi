@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 
 @Schema(description = "Request body content for quarantining the user password")
-public class PasswordQuarantineRequestBody extends AuthenticationBody {
+public class PasswordQuarantineRequestBodyDTO extends AuthenticationBodyDTO {
 
     @Schema(description = "The id of this activation attempt, used for for logging")
     public UUID activation_id;

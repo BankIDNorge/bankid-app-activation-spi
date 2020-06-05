@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "The result of trying to remove BankID app from an end user's BankID ")
 
-public class DeleteBappResponse {
+public class DeleteBappResponseDTO {
     public Result status;
 
     @Schema(description = "Status value for the delete operation " +

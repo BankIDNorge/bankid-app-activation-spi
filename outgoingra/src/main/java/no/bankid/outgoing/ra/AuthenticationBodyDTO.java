@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Minimal body for authenticating and authorizing a request")
 
-public class AuthenticationBody {
+public class AuthenticationBodyDTO {
     @Schema(description = "Name of client sending the request",
             example = "vipps-bapp-client")
     public String client_name;

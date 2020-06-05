@@ -5,9 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 @Schema(description = "The result of querying RA about end user distribution methods")
-public class SelfServiceCheckUserResponse {
+public class SelfServiceCheckUserResponseDTO {
     @Schema(description = "Declaration for Methods for distribution and ")
-    public static class DistributionMethod {
+    public static class DistributionMethodDTO {
         @Schema(description = "Type of distribution" +
                 "<ul>" +
                 "<li> - email:  1-3 unmasked characters + \"(...)\" @ domain.topdomain, eg. dei(...)@gmail.com </li>" +
@@ -29,7 +29,7 @@ public class SelfServiceCheckUserResponse {
         public long last_modified;
     }
 
-    public static class MsisdnReference {
+    public static class MsisdnReferenceDTO {
         @Schema(description = "An opaque reference which will be used as an alias for the msisdn.")
         public String id;
         @Schema(description = "When was msisdn last confirmed to be correct by the user, ms since epoch, UTC")
@@ -42,7 +42,7 @@ public class SelfServiceCheckUserResponse {
     @Schema(description = "Time when the user's password was last reset, ms since epoch, UTC")
     public long pw_reset_timestamp;
     @Schema(description = "If the msisdn given in the request is correct, return a MsisdnReference object otherwise msisdn_reference=null.")
-    public MsisdnReference msisdn_reference;
+    public MsisdnReferenceDTO msisdn_reference;
     @Schema(description = "List of distribution methods")
-    public List<DistributionMethod> distribution_methods;
+    public List<DistributionMethodDTO> distribution_methods;
 }

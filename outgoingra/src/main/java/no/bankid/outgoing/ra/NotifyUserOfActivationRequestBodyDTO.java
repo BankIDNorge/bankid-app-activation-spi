@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.UUID;
 
 @Schema(description = "Request body content for asking an RA to send a notification to an end user")
-public class NotifyUserOfActivationRequestBody extends AuthenticationBody {
+public class NotifyUserOfActivationRequestBodyDTO extends AuthenticationBodyDTO {
 
     @Schema(description = "Information about the activation")
-    public static class ActivationMetadata {
+    public static class ActivationMetadataDTO {
 
         @Schema(description = "Details of one distribution method used during activation.")
-        public static class ViaDistributionMethod {
+        public static class ViaDistributionMethodDTO {
             @Schema(description = "Type of distribution", example = "email")
             public enum DistributeBy {
                 sms, email, postal
@@ -45,18 +45,18 @@ public class NotifyUserOfActivationRequestBody extends AuthenticationBody {
 
         public FlowType flow;
         @Schema(description = "The distribution methods (if any) used during activation.")
-        public ViaDistributionMethod[] via_distribution_methods;
+        public ViaDistributionMethodDTO[] via_distribution_methods;
 
-        public AppClientLocale locale;
+        public AppClientLocaleDTO locale;
         @Schema(description = "Map of localized strings explaining how the device was activated",
                 example = "{" +
                         "\"no\": \"med aktiveringskoder gitt på email til que***@xyz.no og på sms til XXX XX X42\"," +
                         "\"en\": \"using activation codes by email to que***@xyz.no and sms to XXX XX X42\"" +
                         "}")
-        public Map<AppClientLocale, String> human_readable;
+        public Map<AppClientLocaleDTO, String> human_readable;
     }
 
     @Schema(description = "The id of this activation attempt, used for for logging")
     public UUID activation_id;
-    public ActivationMetadata activationMetadata;
+    public ActivationMetadataDTO activationMetadata;
 }
