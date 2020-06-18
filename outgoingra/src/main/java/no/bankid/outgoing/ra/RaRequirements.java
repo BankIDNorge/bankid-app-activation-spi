@@ -30,7 +30,16 @@ import static no.bankid.outgoing.ra.HttpSignatureHeaders.SIGNATURE;
                 version = "1.3-rc1",
                 description = "Defines the interface to be provided by a Registration Authority service to " +
                         "support activation of BankID App as a HA2 element for an end user's Netcentric BankID." +
-                        "<h6>This version corresponds to " +
+                        "<p>" +
+                        "An RA implementing the <i>OTP administration</i> group of operations may offer BankID App " +
+                        "to all it's end users having a functioning Netcentric BankID with a code device." +
+                        "</p>" +
+                        "<p>" +
+                        "If in addition, the RA implements the <i>Activation without Code Device</i> " +
+                        "groups of operations then end users may activate the Bankid App without having " +
+                        "another Code Device at all !" +
+                        "</p>" +
+                        "<h6>This SPI version corresponds to the document " +
                         "'Specification of Solutions for Activation of BankID App as HA2-elements' version v.62</h6>"
         ),
         tags = {

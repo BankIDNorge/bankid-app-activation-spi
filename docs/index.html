@@ -45,12 +45,12 @@ const DisableTryItOutPlugin = function() {
   }
 }
 
-<!-- can be tested in IDEA by setting url='swagger.yaml' and open in browser from popup menu -->
+<!-- can be tested in IDEA by setting url='swagger.json' and open in browser from popup menu -->
 
 window.onload = function() {
   // Build a system,
   const ui = SwaggerUIBundle({
-    url: 'https://vippsas.github.io/bankid-app-api/swagger.yaml',
+    url: 'https://vippsas.github.io/bankid-app-api/swagger.json',
     dom_id: '#swagger-ui',
     deepLinking: true,
     presets: [
