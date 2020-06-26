@@ -58,5 +58,5 @@ public class NotifyUserOfActivationRequestBodyDTO extends AuthenticationBodyDTO 
 
     @Schema(description = "The id of this activation attempt, used for for logging")
     public UUID activation_id;
-    public ActivationMetadataDTO activationMetadata;
+    public ActivationMetadataDTO activation_metadata;
 }

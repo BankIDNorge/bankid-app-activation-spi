@@ -40,7 +40,7 @@ import static no.bankid.outgoing.ra.HttpSignatureHeaders.SIGNATURE;
                         "another Code Device at all !" +
                         "</p>" +
                         "<h6>This SPI version corresponds to the document " +
-                        "'Specification of Solutions for Activation of BankID App as HA2-elements' version v.62</h6>"
+                        "'Specification of Solutions for Activation of BankID App as HA2-elements' version v.63</h6>"
         ),
         tags = {
                 @Tag(name = RaRequirements.SERVICE_AVAILABILITY,

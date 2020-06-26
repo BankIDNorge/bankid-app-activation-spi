@@ -45,4 +45,5 @@ public class SelfServiceCheckUserResponseDTO {
     public MsisdnReferenceDTO msisdn_reference;
     @Schema(description = "List of distribution methods")
     public List<DistributionMethodDTO> distribution_methods;
+    public StatusBappResponseDTO.Result status;
 }
