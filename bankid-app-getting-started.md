@@ -4,7 +4,7 @@ This guide covers what you need to get started with integrating BankID app infra
 The following information must be provided to BankID support when requesting integration with BankID app:
 * Bank register number, i.e. BankID originator ID as found in Norwegian IBAN-BIC Table
 * Bank name
-* Endpoint for RA resource providing OTP activation service as described in [BankID app API guide](../blob/master/bankid-app-api.md).
+* Endpoint for RA resource providing OTP activation service as described in [BankID app API guide](../master/bankid-app-api.md).
 
 In return we will provide 
 * Address of the Vipps server sending the request to the BankID RA 
