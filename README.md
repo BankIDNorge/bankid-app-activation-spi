@@ -29,11 +29,11 @@ Vipps offers an API to inspect and modify the bank's end users BankID App relati
   
 ### Links
   
-For information about API keys, product activation, etc see [Getting Started](https://github.com/vippsas/bankid-app-api/blob/master/bankid-app-getting-started.md).
+For information about API keys, product activation, etc see [Getting Started](../blob/master/bankid-app-getting-started.md).
 
-For API documentation and development guidelines please see our [BankID app API guide](https://github.com/vippsas/bankid-app-api/blob/master/bankid-app-api.md).
+For API documentation and development guidelines please see our [BankID app API guide](../blob/master/bankid-app-api.md).
 
-You can peruse the SPI reference documentation as [Swagger](https://vippsas.github.io/bankid-app-api/) or [ReDoc](https://vippsas.github.io/bankid-app-api/redoc.html).
+You can peruse the SPI reference documentation as [Swagger](https://vippsas.github.io/bankid-app-activation-spi/) or [ReDoc](https://vippsas.github.io/bankid-app-activation-spi/redoc.html).
 
 Building this documentation, run 
 

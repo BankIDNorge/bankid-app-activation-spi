@@ -21,7 +21,7 @@ The endpoints must be secured using signed HTTP messages according to the
 [Signing HTTP Messages](https://tools.ietf.org/html/draft-cavage-http-signatures-12) protocol. The requests sent by Vipps contains 
 a Signature header as described in this protocol. The signature algorithm used is rsa-sha256. 
 The receiver must verify the signature using the certificate received 
-from Vipps as described in [Getting Started](https://github.com/vippsas/bankid-app-api/blob/master/bankid-app-getting-started.md). 
+from Vipps as described in [Getting Started](../blob/master/bankid-app-getting-started.md). 
 
 Implementation notes:
 * The protocol defines two ways of sending the Signature, either in the _Authorization_ header or as a headervalue named _Signature_. 
@@ -33,13 +33,13 @@ translated into _FALSE_ when using the .yaml file and that causes errors.
 
 ### Request endpoints
 
-Detailed description of the request endpoints are found in the SPI reference documentation as [Swagger](https://vippsas.github.io/bankid-app-api/) or [ReDoc](https://vippsas.github.io/bankid-app-api/redoc.html).
+Detailed description of the request endpoints are found in the SPI reference documentation as [Swagger](https://vippsas.github.io/bankid-app-activation-spi/) or [ReDoc](https://vippsas.github.io/bankid-app-activation-spi/redoc.html).
 
 Endpoints are grouped by functionality. RA may implement all or some of these groups, depending on the functionality the RA supports. 
 
 # Questions?
 
 We're always happy to help with code or other questions you might have!
-Please create an [issue](https://github.com/vippsas/bankid-app-api/issues),
-a [pull request](https://github.com/vippsas/bankid-app-api/pulls),
+Please create an [issue](https://github.com/vippsas/bankid-app-activation-spi/issues),
+a [pull request](https://github.com/vippsas/bankid-app-activation-spi/pulls),
 or [contact us](https://github.com/vippsas/vipps-developers/blob/master/contact.md).
