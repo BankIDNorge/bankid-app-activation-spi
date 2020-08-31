@@ -27,7 +27,7 @@ import static no.bankid.outgoing.ra.HttpSignatureHeaders.SIGNATURE;
 @OpenAPIDefinition(
         info = @Info(
                 title = "BankID RA Service Provider Interface (SPI) for activation of BankID App",
-                version = "1.3-rc1",
+                version = "1.0.0",
                 description = "Defines the interface to be provided by a Registration Authority service to " +
                         "support activation of BankID App as a HA2 element for an end user's Netcentric BankID." +
                         "<p>" +
