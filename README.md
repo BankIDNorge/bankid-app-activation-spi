@@ -33,7 +33,7 @@ For information about API keys, product activation, etc see [Getting Started](..
 
 For API documentation and development guidelines please see our [BankID app API guide](../master/bankid-app-api.md).
 
-You can peruse the SPI reference documentation as [Swagger](https://vippsas.github.io/bankid-app-activation-spi/) or [ReDoc](https://vippsas.github.io/bankid-app-activation-spi/redoc.html).
+You can peruse the SPI reference documentation as [Swagger](https://techcloud0.github.io/bankid-app-activation-spi/) or [ReDoc](https://techcloud0.github.io/bankid-app-activation-spi/redoc.html).
 
 Building this documentation, run 
 
