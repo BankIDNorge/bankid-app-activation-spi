@@ -8,10 +8,6 @@ BankID issuing RA to add the _bapp_ HA2 mechanism to the end user's NetCentric B
 RA should then issue an OTPAdd against BankID ODS. 
 Please see the BankID Core (COI) documentation for more information regarding the BankID HA2 mechanism.
 
-## BankID app API endpoints offered by BankID
-BankID offers an administration API allowing the bank issuing BankIDs to query if an end user has activated BankID app, and to enable/disable the app for a given end user.
-Security is provided by OpenID connect (OIDC) access tokens, issued by BankID OIDC.
-
 ## BankID RA SPI endpoints required by BankID
 In order for BankID to request BankID app to be added as an HA2-mechanism to an enduser's BankID, the bank must implement the SPI 
 described here. 

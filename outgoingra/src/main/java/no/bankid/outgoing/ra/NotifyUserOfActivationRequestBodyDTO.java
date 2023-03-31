@@ -50,7 +50,7 @@ public class NotifyUserOfActivationRequestBodyDTO extends AuthenticationBodyDTO 
         public AppClientLocaleDTO locale;
         @Schema(description = "Map of localized strings explaining how the device was activated",
                 example = "{" +
-                        "\"no\": \"med aktiveringskoder gitt på email til que***@xyz.no og på sms til XXX XX X42\"," +
+                        "\"no\": \"med aktiveringskoder gitt pÃ¥ email til que***@xyz.no og pÃ¥ sms til XXX XX X42\"," +
                         "\"en\": \"using activation codes by email to que***@xyz.no and sms to XXX XX X42\"" +
                         "}")
         public Map<AppClientLocaleDTO, String> human_readable;
