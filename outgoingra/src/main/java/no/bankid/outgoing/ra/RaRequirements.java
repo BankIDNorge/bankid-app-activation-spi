@@ -188,7 +188,7 @@ public interface RaRequirements {
     @GET
     Response healthCheck();
 
-    @Operation(summary = "Check two-channel options for end user"
+    @Operation(summary = "Check two-channel options for end user."
             , description =
             "<p>Endpoint to check if a specific user is eligible from single originator for self-service activation.</p>" +
                     "<p>The RA should check if the provided phone number is registered for the user, " +
@@ -220,12 +220,14 @@ public interface RaRequirements {
                     SelfServiceCheckUserRequestBodyDTO selfserviceCheckuserRequestBody
     );
 
-    @Operation(summary = "Request distribution of a verification code to be sent to an end user."
+
+    @Operation(summary = "Request distribution of a verification code to be sent to an end user. Will be deprecated in 2023."
             , description = "<p>Endpoint to request distribution of an a verification code to be sent to an end user. " +
             "Upon receiving a request on this end-point, the RA should distribute the provided code over " +
             "sms or return an error-code.</p>" +
             "<p>The RA should reject requests if they do not recognize the combination of nnin + msisdn</p>"
-            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE})
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE},
+            deprecated = true)
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
@@ -250,11 +252,12 @@ public interface RaRequirements {
                     SendVerificationCodeRequestBodyDTO selfserviceSendVerificationCodeRequestBody
     );
 
-    @Operation(summary = "Send codewords to an end user"
+    @Operation(summary = "Send codewords to an end user. Will be deprecated in 2023."
             , description = "request distribution of code words to be sent to a user." +
             " Upon receiving a request on this end-point, the RA should distribute the provided " +
             "code through the channel indicated, or return an error-code."
-            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE})
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE},
+            deprecated = true)
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
@@ -279,10 +282,11 @@ public interface RaRequirements {
                     SendCodeWordsRequestBodyDTO sendCodeWordsRequestBody
     );
 
-    @Operation(summary = "Prohibit change of end user password"
+    @Operation(summary = "Prohibit change of end user password. Will be deprecated in 2023."
             , description = "signal to the RA that self-service activation has reached the point where password " +
             "change (automated or manual) MUST be prohibited until the provided timestamp, effective immediately."
-            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE})
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE},
+            deprecated = true)
     @ApiResponse(responseCode = "200", description = "Time when password was last reset",
             content = @Content(schema = @Schema(implementation = PasswordQuarantineResponseDTO.class))
     )

@@ -7,12 +7,12 @@ The following information must be provided to BankID support when requesting int
 * Endpoint for RA resource providing OTP activation service as described in [BankID app API guide](../master/bankid-app-api.md).
 
 In return we will provide 
-* Address of the Vipps server sending the request to the BankID RA 
+* Address of the BankID server sending the request to the BankID RA 
 * Certificate for verifying the requests sent by this server
 * A keyid naming the certificate used for the requests sent by this server
-* Administration url, client_id and client_secret to control endusers' BankID app activation status in Vipps 
+* Administration url, client_id and client_secret to control endusers' BankID app activation status in BankID 
 * Description of the administration api
 * Signed example request and the public certificate used in preproduction  
 
-Please make sure that the requests from the Vipps server are allowed through firewalls etc. 
+Please make sure that the requests from the BankID server are allowed through firewalls etc. 
 
