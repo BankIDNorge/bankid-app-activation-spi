@@ -188,13 +188,12 @@ public interface RaRequirements {
     @GET
     Response healthCheck();
 
-    @Operation(summary = "Check two-channel options for end user. Will be deprecated in 2023."
+    @Operation(summary = "Check two-channel options for end user."
             , description =
             "<p>Endpoint to check if a specific user is eligible from single originator for self-service activation.</p>" +
                     "<p>The RA should check if the provided phone number is registered for the user, " +
                     "but return the other information regardless."
-            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE},
-            deprecated = true)
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE})
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
             content = @Content(schema = @Schema(implementation = SelfServiceCheckUserResponseDTO.class))
     )
