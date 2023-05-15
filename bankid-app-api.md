@@ -17,7 +17,7 @@ The endpoints must be secured using signed HTTP messages according to the
 [Signing HTTP Messages](https://tools.ietf.org/html/draft-cavage-http-signatures-12) protocol. The requests sent by BankID contains 
 a Signature header as described in this protocol. The signature algorithm used is rsa-sha256. 
 The receiver must verify the signature using the certificate received 
-from BankID as described in [Getting Started](../master/bankid-app-getting-started.md). 
+from BankID as described in [Getting Started](../main/bankid-app-getting-started.md). 
 
 Implementation notes:
 * The protocol defines two ways of sending the Signature, either in the _Authorization_ header or as a headervalue named _Signature_. 
