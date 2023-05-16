@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 @Schema(description = "The result of querying RA about validity of end user phone number")
-public class SelfServiceCheckUserResponseDTO {
+public class CheckUserResponseDTO {
     @Schema(
             description =
                 "<b>Note:</b> Only required for Self Service activation." +

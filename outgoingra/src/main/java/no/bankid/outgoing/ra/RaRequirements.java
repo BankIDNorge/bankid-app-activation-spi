@@ -187,7 +187,7 @@ public interface RaRequirements {
                 "however now it is required for all types of BankID App activation.</p>"
             , tags = {OTP_ADMINISTRATION, ACTIVATION_WITHOUT_CODE_DEVICE})
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
-            content = @Content(schema = @Schema(implementation = SelfServiceCheckUserResponseDTO.class))
+            content = @Content(schema = @Schema(implementation = CheckUserResponseDTO.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
@@ -195,7 +195,7 @@ public interface RaRequirements {
     )
     @Path("selfservice/check_user")
     @POST
-    Response selfServiceCheckUser(
+    Response checkUser(
             @Parameter(description = DESCRIPTION_SIGNATURE,
                     example = EXAMPLE_SIGNATURE,
                     required = true)
@@ -209,7 +209,7 @@ public interface RaRequirements {
                     required = true)
             @HeaderParam(DIGEST) String digest,
             @RequestBody(description = "Phone number", required = true)
-                    SelfServiceCheckUserRequestBodyDTO checkUserRequestBody
+            CheckUserRequestBodyDTO checkUserRequestBody
     );
 
 
