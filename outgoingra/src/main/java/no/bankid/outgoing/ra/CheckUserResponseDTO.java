@@ -66,10 +66,16 @@ public class CheckUserResponseDTO {
         @Schema(description = "An opaque reference which will be used as an alias for the msisdn.")
         public String id;
 
-        @Schema(description = "When was msisdn last confirmed to be correct by the user, ms since epoch, UTC")
+        @Schema(
+                description = "When was msisdn last confirmed to be correct by the user, ms since epoch, UTC",
+                required = true
+        )
         public long last_confirmed_by_user;
 
-        @Schema(description = "When was msisdn last modified, ms since epoch, UTC")
+        @Schema(
+                description = "When was msisdn last modified, ms since epoch, UTC",
+                required = true
+        )
         public long last_modified;
     }
 
