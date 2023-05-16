@@ -4,7 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
-@Schema(description = "Request body content for asking an RA to send code words to an end user")
+@Schema(
+        description = "Request body content for asking an RA to send code words to an end user",
+        deprecated = true
+)
 public class SendCodeWordsRequestBodyDTO extends AuthenticationBodyDTO {
     @Schema(description = "The id of this activation attempt, used for for logging, will be the same for both codes")
     public UUID activation_id;
