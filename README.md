@@ -29,9 +29,9 @@ BankID offers an API to inspect and modify the bank's end users BankID App relat
   
 ### Links
   
-For information about API keys, product activation, etc see [Getting Started](../master/bankid-app-getting-started.md).
+For information about API keys, product activation, etc see [Getting Started](../main/bankid-app-getting-started.md).
 
-For API documentation and development guidelines please see our [BankID app API guide](../master/bankid-app-api.md).
+For API documentation and development guidelines please see our [BankID app API guide](../main/bankid-app-api.md).
 
 You can peruse the SPI reference documentation as [Swagger](https://bankidnorge.github.io/bankid-app-activation-spi/) or [ReDoc](https://bankidnorge.github.io/bankid-app-activation-spi/redoc.html).
 
