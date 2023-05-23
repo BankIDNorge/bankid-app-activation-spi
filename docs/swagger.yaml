@@ -8,7 +8,7 @@ info:
     with a code device.</p><h6>Internal note: This SPI version corresponds to the
     document ''<a href="https://confluence.bankidnorge.no/confluence/x/IYG9Cg">Specification
     of Solutions for Activation of BankID App as HA2-elements</a>'' version v.63</h6>'
-  version: 1.0.0
+  version: 1.1.0
 servers:
 - url: https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp
   description: Preprod RA-lite
