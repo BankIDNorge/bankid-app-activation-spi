@@ -1,27 +1,24 @@
 openapi: 3.0.1
 info:
   title: BankID RA Service Provider Interface (SPI) for activation of BankID App
-  description: Defines the interface to be provided by a Registration Authority service
-    to support activation of BankID App as a HA2 element for an end user's Netcentric
+  description: 'Defines the interface to be provided by a Registration Authority service
+    to support activation of BankID App as a HA2 element for an end user''s Netcentric
     BankID.<p>An RA implementing the <i>OTP administration</i> group of operations
-    may offer BankID App to all it's end users having a functioning Netcentric BankID
-    with a code device.</p><p>If in addition, the RA implements the <i>Activation
-    without Code Device</i> groups of operations then end users may activate the Bankid
-    App without having another Code Device at all !</p><h6>This SPI version corresponds
-    to the document 'Specification of Solutions for Activation of BankID App as HA2-elements'
-    version v.63</h6>
+    may offer BankID App to all its end users having a functioning Netcentric BankID
+    with a code device.</p><h6>Internal note: This SPI version corresponds to the
+    document ''<a href="https://confluence.bankidnorge.no/confluence/x/IYG9Cg">Specification
+    of Solutions for Activation of BankID App as HA2-elements</a>'' version v.63</h6>'
   version: 1.0.0
 servers:
 - url: https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp
-  description: Preprod Ra-lite
+  description: Preprod RA-lite
   variables: {}
 tags:
 - name: Service availability
   description: Checks that the service is available
 - name: OTP administration
   description: Adds or deletes BankID App from an end user's BankID
-- name: Activation without Code Device
-- name: Activation without Code Device - Self Service
+- name: Activation without Code Device (aka Self Service)
 paths:
   /add:
     post:
@@ -206,13 +203,15 @@ paths:
   /selfservice/check_user:
     post:
       tags:
-      - Activation without Code Device - Self Service
-      summary: Check two-channel options for end user.
-      description: <p>Endpoint to check if a specific user is eligible from single
-        originator for self-service activation.</p><p>The RA should check if the provided
-        phone number is registered for the user, but return the other information
-        regardless.
-      operationId: selfServiceCheckUser
+      - OTP administration
+      - Activation without Code Device (aka Self Service)
+      summary: Validate end user BankID App activation attempt.
+      description: '<p>Endpoint to check if a specific user is eligible from single
+        originator for activation and the provided phone number is registered for
+        the user.</p><p><b>Note</b>: This method was previously used exclusively Activation
+        without Code Device (aka Self Service), however now it is required for all
+        types of BankID App activation.</p>'
+      operationId: checkUser
       parameters:
       - name: Signature
         in: header
@@ -242,11 +241,11 @@ paths:
           type: string
         example: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
       requestBody:
-        description: Activation code and how to distribute
+        description: Phone number
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SelfServiceCheckUserRequestBodyDTO'
+              $ref: '#/components/schemas/CheckUserRequestBodyDTO'
         required: true
       responses:
         200:
@@ -254,7 +253,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SelfServiceCheckUserResponseDTO'
+                $ref: '#/components/schemas/CheckUserResponseDTO'
         400:
           description: In case of error
         500:
@@ -266,9 +265,8 @@ paths:
   /selfservice/send_verification_code:
     post:
       tags:
-      - Activation without Code Device - Self Service
+      - Activation without Code Device (aka Self Service)
       summary: Request distribution of a verification code to be sent to an end user.
-        Will be deprecated in 2023.
       description: <p>Endpoint to request distribution of an a verification code to
         be sent to an end user. Upon receiving a request on this end-point, the RA
         should distribute the provided code over sms or return an error-code.</p><p>The
@@ -325,8 +323,8 @@ paths:
   /selfservice/send_code_words:
     post:
       tags:
-      - Activation without Code Device - Self Service
-      summary: Send codewords to an end user. Will be deprecated in 2023.
+      - Activation without Code Device (aka Self Service)
+      summary: Send codewords to an end user.
       description: request distribution of code words to be sent to a user. Upon receiving
         a request on this end-point, the RA should distribute the provided code through
         the channel indicated, or return an error-code.
@@ -381,8 +379,8 @@ paths:
   /selfservice/password_quarantine:
     post:
       tags:
-      - Activation without Code Device - Self Service
-      summary: Prohibit change of end user password. Will be deprecated in 2023.
+      - Activation without Code Device (aka Self Service)
+      summary: Prohibit change of end user password.
       description: signal to the RA that self-service activation has reached the point
         where password change (automated or manual) MUST be prohibited until the provided
         timestamp, effective immediately.
@@ -441,7 +439,7 @@ paths:
   /notify_user_of_activation:
     post:
       tags:
-      - Activation without Code Device
+      - OTP administration
       summary: Tell end user that BankID App is activated
       description: Request notification of the end user that his BankID App instance
         is activated
@@ -522,6 +520,11 @@ components:
           type: string
       description: Result when there is only an error code in return
     AuthenticationBodyDTO:
+      required:
+      - client_name
+      - nnin
+      - originator_id
+      - request_id
       type: object
       properties:
         client_name:
@@ -578,68 +581,22 @@ components:
           - BLOCKED_IN_ODS
       description: 'The result of trying to remove BankID app from an end user''s
         BankID '
-    DistributionMethodDTO:
-      type: object
-      properties:
-        type:
-          type: string
-          description: 'Type of distribution<ul><li> - email:  1-3 unmasked characters
-            + "(...)" @ domain.topdomain, eg. dei(...)@gmail.com </li><li> - postal:
-            No hint, details on the address must not be exposed. </li></ul>'
-          example: email
-          enum:
-          - email
-          - postal
-        id:
-          type: string
-          description: An id for this distribution method, must be unique within this
-            response
-        hint:
-          type: string
-          description: Hint to user, ex. "que****@hotmail.com" or empty string on
-            official_address
-        last_confirmed_by_user:
-          type: integer
-          description: When was this contact information last confirmed to be correct
-            by the user, ms since epoch, UTC
-          format: int64
-        last_modified:
-          type: integer
-          description: When was this contact information last modified, ms since epoch,
-            UTC
-          format: int64
-      description: 'Declaration for Methods for distribution and '
-    MsisdnReferenceDTO:
-      type: object
-      properties:
-        id:
-          type: string
-          description: An opaque reference which will be used as an alias for the
-            msisdn.
-        last_confirmed_by_user:
-          type: integer
-          description: When was msisdn last confirmed to be correct by the user, ms
-            since epoch, UTC
-          format: int64
-        last_modified:
-          type: integer
-          description: When was msisdn last modified, ms since epoch, UTC
-          format: int64
-      description: If the msisdn given in the request is correct, return a MsisdnReference
-        object otherwise msisdn_reference=null.
-    SelfServiceCheckUserResponseDTO:
+    CheckUserResponseDTO:
       type: object
       properties:
         pw_reset_timestamp:
           type: integer
-          description: Time when the user's password was last reset, ms since epoch,
-            UTC
+          description: <b>Note:</b> Only required for Self Service activation.<p>Time
+            when the user's password was last reset, ms since epoch, UTC</p>
           format: int64
+          deprecated: true
         msisdn_reference:
           $ref: '#/components/schemas/MsisdnReferenceDTO'
         distribution_methods:
           type: array
-          description: List of distribution methods
+          description: <b>Note:</b> Only required for Self Service activation.<p>List
+            of distribution methods.</p>
+          deprecated: true
           items:
             $ref: '#/components/schemas/DistributionMethodDTO'
         status:
@@ -657,22 +614,75 @@ components:
           - BANK_ID_NOT_AVAILABLE
           - BLOCKED_BY_BANK
           - BLOCKED_IN_ODS
-      description: The result of querying RA about end user distribution methods
-    MsisdnDTO:
+      description: The result of querying RA about validity of end user phone number
+    DistributionMethodDTO:
       type: object
       properties:
-        cc_count:
-          type: integer
-          description: Country code length, this is provided purely for convenience.
-          format: int32
-          example: 2
-        e164_number:
+        type:
           type: string
-          description: Phone number, always provided with country code and without
-            leading zeroes or +.
-          example: "4793123456"
-      description: 'Phone number to standard: <a href="https://www.itu.int/rec/T-REC-E.164-201011-I/en">T-REC-E.164-201011-I</a>'
-    SelfServiceCheckUserRequestBodyDTO:
+          description: '<b>Note:</b> Only required for Self Service activation. <p>Type
+            of distribution</p><ul><li> - email:  1-3 unmasked characters + "(...)"
+            @ domain.topdomain, eg. dei(...)@gmail.com </li><li> - postal: No hint,
+            details on the address must not be exposed. </li></ul>'
+          example: email
+          deprecated: true
+          enum:
+          - email
+          - postal
+        id:
+          type: string
+          description: <b>Note:</b> Only required for Self Service activation.<p>An
+            id for this distribution method, must be unique within this response</p>
+          deprecated: true
+        hint:
+          type: string
+          description: <b>Note:</b> Only required for Self Service activation.<p>Hint
+            to user, ex. "que****@hotmail.com" or empty string on official_address</p>
+          deprecated: true
+        last_confirmed_by_user:
+          type: integer
+          description: <b>Note:</b> Only required for Self Service activation.<p>When
+            was this contact information last confirmed to be correct by the user,
+            ms since epoch, UTC</p>
+          format: int64
+          deprecated: true
+        last_modified:
+          type: integer
+          description: <b>Note:</b> Only required for Self Service activation.<p>When
+            was this contact information last modified, ms since epoch, UTC</p>
+          format: int64
+          deprecated: true
+      description: <b>Note:</b> Only required for Self Service activation.<p>Declaration
+        for Methods for distribution</p>
+      deprecated: true
+    MsisdnReferenceDTO:
+      required:
+      - last_confirmed_by_user
+      - last_modified
+      type: object
+      properties:
+        id:
+          type: string
+          description: An opaque reference which will be used as an alias for the
+            msisdn.
+        last_confirmed_by_user:
+          type: integer
+          description: When was msisdn last confirmed to be correct by the user, ms
+            since epoch, UTC
+          format: int64
+        last_modified:
+          type: integer
+          description: When was msisdn last modified, ms since epoch, UTC
+          format: int64
+      description: If the msisdn given in the request is correct, return a MsisdnReference
+        object otherwise msisdn_reference=null.
+    CheckUserRequestBodyDTO:
+      required:
+      - activation_id
+      - client_name
+      - nnin
+      - originator_id
+      - request_id
       type: object
       properties:
         client_name:
@@ -699,9 +709,31 @@ components:
           format: uuid
         msisdn:
           $ref: '#/components/schemas/MsisdnDTO'
-      description: Request body content for asking an RA about end user distribution
-        methods
+      description: Request body content for asking an RA to validate end user activation
+        attempt.
+    MsisdnDTO:
+      required:
+      - cc_count
+      - e164_number
+      type: object
+      properties:
+        cc_count:
+          type: integer
+          description: Country code length, this is provided purely for convenience.
+          format: int32
+          example: 2
+        e164_number:
+          type: string
+          description: Phone number, always provided with country code and without
+            leading zeroes or +.
+          example: "4793123456"
+      description: 'Phone number to standard: <a href="https://www.itu.int/rec/T-REC-E.164-201011-I/en">T-REC-E.164-201011-I</a>'
     SendVerificationCodeRequestBodyDTO:
+      required:
+      - client_name
+      - nnin
+      - originator_id
+      - request_id
       type: object
       properties:
         client_name:
@@ -750,6 +782,11 @@ components:
       description: Request body content for asking an RA to send verification code
         to end user
     SendCodeWordsRequestBodyDTO:
+      required:
+      - client_name
+      - nnin
+      - originator_id
+      - request_id
       type: object
       properties:
         client_name:
@@ -797,6 +834,7 @@ components:
           format: int64
       description: Request body content for asking an RA to send code words to an
         end user
+      deprecated: true
     PasswordQuarantineResponseDTO:
       type: object
       properties:
@@ -806,6 +844,11 @@ components:
           format: int64
       description: Response when quarantining an end user password
     PasswordQuarantineRequestBodyDTO:
+      required:
+      - client_name
+      - nnin
+      - originator_id
+      - request_id
       type: object
       properties:
         client_name:
@@ -891,6 +934,11 @@ components:
               X42
       description: Information about the activation
     NotifyUserOfActivationRequestBodyDTO:
+      required:
+      - client_name
+      - nnin
+      - originator_id
+      - request_id
       type: object
       properties:
         client_name:
