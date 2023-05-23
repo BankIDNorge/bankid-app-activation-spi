@@ -32,27 +32,20 @@ import static no.bankid.outgoing.ra.HttpSignatureHeaders.SIGNATURE;
                         "support activation of BankID App as a HA2 element for an end user's Netcentric BankID." +
                         "<p>" +
                         "An RA implementing the <i>OTP administration</i> group of operations may offer BankID App " +
-                        "to all it's end users having a functioning Netcentric BankID with a code device." +
+                        "to all its end users having a functioning Netcentric BankID with a code device." +
                         "</p>" +
-                        "<p>" +
-                        "If in addition, the RA implements the <i>Activation without Code Device</i> " +
-                        "groups of operations then end users may activate the Bankid App without having " +
-                        "another Code Device at all !" +
-                        "</p>" +
-                        "<h6>This SPI version corresponds to the document " +
-                        "'Specification of Solutions for Activation of BankID App as HA2-elements' version v.63</h6>"
+                        "<h6>Internal note: This SPI version corresponds to the document " +
+                        "'<a href=\"https://confluence.bankidnorge.no/confluence/x/IYG9Cg\">Specification of Solutions for Activation of BankID App as HA2-elements</a>' version v.63</h6>"
         ),
         tags = {
                 @Tag(name = RaRequirements.SERVICE_AVAILABILITY,
                         description = "Checks that the service is available"),
                 @Tag(name = RaRequirements.OTP_ADMINISTRATION,
                         description = "Adds or deletes BankID App from an end user's BankID"),
-                @Tag(name = RaRequirements.ACTIVATION_WITHOUT_CODE_DEVICE),
-                @Tag(name = RaRequirements.ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE)
-
+                @Tag(name = RaRequirements.ACTIVATION_WITHOUT_CODE_DEVICE)
         },
         servers = {
-                @Server(description = "Preprod Ra-lite",
+                @Server(description = "Preprod RA-lite",
                         url = "https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp")
         }
 )
@@ -77,8 +70,7 @@ public interface RaRequirements {
     String EXAMPLE_DIGEST = "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=";
 
 
-    String ACTIVATION_WITHOUT_CODE_DEVICE = "Activation without Code Device";
-    String ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE = "Activation without Code Device - Self Service";
+    String ACTIVATION_WITHOUT_CODE_DEVICE = "Activation without Code Device (aka Self Service)";
     String OTP_ADMINISTRATION = "OTP administration";
     String SERVICE_AVAILABILITY = "Service availability";
 
@@ -86,7 +78,6 @@ public interface RaRequirements {
             , description = "Adds BankID App to an end user's BankID OTP mechanisms in a given bank"
             , tags = {OTP_ADMINISTRATION}
     )
-
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
             content = @Content(schema = @Schema(implementation = AddBappResponseDTO.class))
     )
@@ -188,14 +179,15 @@ public interface RaRequirements {
     @GET
     Response healthCheck();
 
-    @Operation(summary = "Check two-channel options for end user."
+    @Operation(summary = "Validate end user BankID App activation attempt."
             , description =
-            "<p>Endpoint to check if a specific user is eligible from single originator for self-service activation.</p>" +
-                    "<p>The RA should check if the provided phone number is registered for the user, " +
-                    "but return the other information regardless."
-            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE})
+                "<p>Endpoint to check if a specific user is eligible from single originator for activation and " +
+                "the provided phone number is registered for the user.</p>" +
+                "<p><b>Note</b>: This method was previously used exclusively Activation without Code Device (aka Self Service), " +
+                "however now it is required for all types of BankID App activation.</p>"
+            , tags = {OTP_ADMINISTRATION, ACTIVATION_WITHOUT_CODE_DEVICE})
     @ApiResponse(responseCode = "200", description = "If status returned is valid",
-            content = @Content(schema = @Schema(implementation = SelfServiceCheckUserResponseDTO.class))
+            content = @Content(schema = @Schema(implementation = CheckUserResponseDTO.class))
     )
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
@@ -203,7 +195,7 @@ public interface RaRequirements {
     )
     @Path("selfservice/check_user")
     @POST
-    Response selfServiceCheckUser(
+    Response checkUser(
             @Parameter(description = DESCRIPTION_SIGNATURE,
                     example = EXAMPLE_SIGNATURE,
                     required = true)
@@ -216,17 +208,17 @@ public interface RaRequirements {
                     example = EXAMPLE_DIGEST,
                     required = true)
             @HeaderParam(DIGEST) String digest,
-            @RequestBody(description = "Activation code and how to distribute", required = true)
-                    SelfServiceCheckUserRequestBodyDTO selfserviceCheckuserRequestBody
+            @RequestBody(description = "Phone number", required = true)
+            CheckUserRequestBodyDTO checkUserRequestBody
     );
 
 
-    @Operation(summary = "Request distribution of a verification code to be sent to an end user. Will be deprecated in 2023."
+    @Operation(summary = "Request distribution of a verification code to be sent to an end user."
             , description = "<p>Endpoint to request distribution of an a verification code to be sent to an end user. " +
             "Upon receiving a request on this end-point, the RA should distribute the provided code over " +
             "sms or return an error-code.</p>" +
             "<p>The RA should reject requests if they do not recognize the combination of nnin + msisdn</p>"
-            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE},
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE},
             deprecated = true)
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
@@ -252,11 +244,11 @@ public interface RaRequirements {
                     SendVerificationCodeRequestBodyDTO selfserviceSendVerificationCodeRequestBody
     );
 
-    @Operation(summary = "Send codewords to an end user. Will be deprecated in 2023."
+    @Operation(summary = "Send codewords to an end user."
             , description = "request distribution of code words to be sent to a user." +
             " Upon receiving a request on this end-point, the RA should distribute the provided " +
             "code through the channel indicated, or return an error-code."
-            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE},
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE},
             deprecated = true)
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
@@ -282,10 +274,10 @@ public interface RaRequirements {
                     SendCodeWordsRequestBodyDTO sendCodeWordsRequestBody
     );
 
-    @Operation(summary = "Prohibit change of end user password. Will be deprecated in 2023."
+    @Operation(summary = "Prohibit change of end user password."
             , description = "signal to the RA that self-service activation has reached the point where password " +
             "change (automated or manual) MUST be prohibited until the provided timestamp, effective immediately."
-            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE_SELF_SERVICE},
+            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE},
             deprecated = true)
     @ApiResponse(responseCode = "200", description = "Time when password was last reset",
             content = @Content(schema = @Schema(implementation = PasswordQuarantineResponseDTO.class))
@@ -315,7 +307,7 @@ public interface RaRequirements {
 
     @Operation(summary = "Tell end user that BankID App is activated"
             , description = "Request notification of the end user that his BankID App instance is activated"
-            , tags = {ACTIVATION_WITHOUT_CODE_DEVICE}
+            , tags = {OTP_ADMINISTRATION}
     )
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
