@@ -10,11 +10,13 @@
 
     <properties>
         <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
-        <swagger.version>2.0.6</swagger.version>
-        <java.version>11</java.version>
+        <swagger.version>2.2.22</swagger.version>
+        <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.release>${java.version}</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <dependencies>
