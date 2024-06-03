@@ -30,9 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Environment
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: 'temurin'
@@ -47,6 +47,9 @@ jobs:
           git config --global user.name "Continuous Integration"
           git config --global user.email "noreply@bidbax.no"
           git add docs
+          # Skip commit if there are no changes
+          git diff --quiet && exit 0
+          # We have changes, commit them
           git commit -m "Updated generated swagger files"
           git push
       - name: Setup Pages
