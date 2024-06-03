@@ -1,0 +1,20 @@
+# Dependabot configuration for bankid-app-activation-spi
+
+version: 2
+updates:
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "05:00"
+      timezone: "Europe/Oslo"
+
+  # Maintain dependencies for Maven
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "05:00"
+      timezone: "Europe/Oslo"
