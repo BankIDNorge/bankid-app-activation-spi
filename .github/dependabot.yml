@@ -13,7 +13,7 @@ updates:
 
   # Maintain dependencies for Maven
   - package-ecosystem: "maven"
-    directory: "/"
+    directory: "/outgoingra"
     schedule:
       interval: "daily"
       time: "05:00"
