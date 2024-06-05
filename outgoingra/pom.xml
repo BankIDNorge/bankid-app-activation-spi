@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
+        <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <swagger.version>2.2.22</swagger.version>
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
