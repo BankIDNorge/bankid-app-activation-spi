@@ -10,7 +10,7 @@
 
     <properties>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
-        <swagger.version>2.2.22</swagger.version>
+        <swagger.version>2.2.25</swagger.version>
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
