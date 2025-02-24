@@ -1,15 +1,9 @@
 openapi: 3.0.1
 info:
   title: BankID RA Service Provider Interface (SPI) for activation of BankID App
-  description: "Defines the interface to be provided by a Registration Authority service\
-    \ to support activation of BankID App as a HA2 element for an end user's Netcentric\
-    \ BankID.<p>An RA implementing the <i>OTP administration</i> group of operations\
-    \ may offer BankID App to all its end users having a functioning Netcentric BankID\
-    \ with a code device.</p><h6>Internal note: This SPI version corresponds to the\
-    \ document '<a href=\"https://confluence.bankidnorge.no/confluence/x/IYG9Cg\"\
-    >Specification of Solutions for Activation of BankID App as HA2-elements</a>'\
-    \ version v.63</h6>"
-  version: 1.1.0
+  description: |
+    Defines the interface to be provided by a Registration Authority service to support activation of BankID App as a HA2 element for an end user's Netcentric BankID.<p>An RA implementing the <i>OTP administration</i> group of operations may offer BankID App to all its end users having a functioning Netcentric BankID.</p><h6>Internal note: This SPI version corresponds to the document '<a href="https://bidbax.atlassian.net/wiki/spaces/BAPP/pages/20585103/Specification+of+Solutions+for+Activation+of+BankID+App+as+HA2-element">Specification of Solutions for Activation of BankID App as HA2-elements</a>' version v.63</h6>
+  version: 1.2.0
 servers:
 - url: https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp
   description: Preprod RA-lite
@@ -18,7 +12,10 @@ tags:
   description: Checks that the service is available
 - name: OTP administration
   description: Adds or deletes BankID App from an end user's BankID
-- name: Activation without Code Device (aka Self Service)
+- name: App enrollment - Qualification
+- name: App enrollment - Identification by RA officer
+- name: App enrollment - Activation without Code Device (aka Self Service)
+  description: "<b>Deprecated: This method was officially deprecated on 2025-02-17</b>"
 paths:
   /add:
     post:
@@ -50,8 +47,9 @@ paths:
         example: "Mon, 16 Sep 2019 12:12:21 GMT"
       - name: Digest
         in: header
-        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
-          in Java returns an object which is not thread safe</p>
+        description: |-
+          SHA-256 hash of body
+          <p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256") in Java returns an object which is not thread safe</p>
         required: true
         schema:
           type: string
@@ -60,14 +58,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthenticationBodyDTO'
+              $ref: "#/components/schemas/AuthenticationBodyDTO"
       responses:
         "200":
           description: If status returned is valid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AddBappResponseDTO'
+                $ref: "#/components/schemas/AddBappResponseDTO"
         "400":
           description: In case of error
         "500":
@@ -75,18 +73,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleErrorResponseDTO'
+                $ref: "#/components/schemas/SimpleErrorResponseDTO"
   /selfservice/check_user:
     post:
       tags:
-      - OTP administration
-      - Activation without Code Device (aka Self Service)
+      - App enrollment - Qualification
       summary: Validate end user BankID App activation attempt.
-      description: "<p>Endpoint to check if a specific user is eligible from single\
-        \ originator for activation and the provided phone number is registered for\
-        \ the user.</p><p><b>Note</b>: This method was previously used exclusively\
-        \ Activation without Code Device (aka Self Service), however now it is required\
-        \ for all types of BankID App activation.</p>"
+      description: <p>Endpoint to check if a specific user is eligible from single
+        originator for activation and the provided phone number is registered for
+        the user.</p>
       operationId: checkUser
       parameters:
       - name: Signature
@@ -110,8 +105,9 @@ paths:
         example: "Mon, 16 Sep 2019 12:12:21 GMT"
       - name: Digest
         in: header
-        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
-          in Java returns an object which is not thread safe</p>
+        description: |-
+          SHA-256 hash of body
+          <p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256") in Java returns an object which is not thread safe</p>
         required: true
         schema:
           type: string
@@ -121,7 +117,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CheckUserRequestBodyDTO'
+              $ref: "#/components/schemas/CheckUserRequestBodyDTO"
         required: true
       responses:
         "200":
@@ -129,7 +125,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CheckUserResponseDTO'
+                $ref: "#/components/schemas/CheckUserResponseDTO"
         "400":
           description: In case of error
         "500":
@@ -137,7 +133,63 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleErrorResponseDTO'
+                $ref: "#/components/schemas/SimpleErrorResponseDTO"
+  /ra-officer/check_user_identity_verification:
+    post:
+      tags:
+      - App enrollment - Identification by RA officer
+      summary: Check if a users identity has been verified by an RA officer
+      operationId: checkUserIdentityVerification
+      parameters:
+      - name: Signature
+        in: header
+        description: "The Signature element, as described in <a href=\"https://tools.ietf.org/html/draft-cavage-http-signatures-12\"\
+          >Internet-Draft - Signing HTTP Messages</a>."
+        required: true
+        schema:
+          type: string
+        example: "keyId=\"fa998090\",algorithm=\"rsa-sha256\",headers=\"(request-target)\
+          \ date digest\",signature=\"o7zK892....\""
+      - name: Date
+        in: header
+        description: "The date element, required format is the format named 'preferred'\
+          \ specified in <a href=\"https://tools.ietf.org/html/rfc7231#section-7.1.1.1\"\
+          >RFC 7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>.<p><b>Implementation\
+          \ tips:</b> Format in Java is 'EEE, dd MMM yyyy HH:mm:ss zzz', locale english.</p>"
+        required: true
+        schema:
+          type: string
+        example: "Mon, 16 Sep 2019 12:12:21 GMT"
+      - name: Digest
+        in: header
+        description: |-
+          SHA-256 hash of body
+          <p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256") in Java returns an object which is not thread safe</p>
+        required: true
+        schema:
+          type: string
+        example: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckUserIdentityVerificationRequestBodyDTO"
+        required: true
+      responses:
+        "200":
+          description: If check for identity verification has been performed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckUserIdentityVerificationResponseDTO"
+        "400":
+          description: In case of error
+        "500":
+          description: In case of error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleErrorResponseDTO"
   /status:
     post:
       tags:
@@ -168,8 +220,9 @@ paths:
         example: "Mon, 16 Sep 2019 12:12:21 GMT"
       - name: Digest
         in: header
-        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
-          in Java returns an object which is not thread safe</p>
+        description: |-
+          SHA-256 hash of body
+          <p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256") in Java returns an object which is not thread safe</p>
         required: true
         schema:
           type: string
@@ -178,14 +231,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthenticationBodyDTO'
+              $ref: "#/components/schemas/AuthenticationBodyDTO"
       responses:
         "200":
           description: If status returned is valid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StatusBappResponseDTO'
+                $ref: "#/components/schemas/StatusBappResponseDTO"
         "400":
           description: In case of error
         "500":
@@ -193,7 +246,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleErrorResponseDTO'
+                $ref: "#/components/schemas/SimpleErrorResponseDTO"
   /healthcheck:
     get:
       tags:
@@ -236,8 +289,9 @@ paths:
         example: "Mon, 16 Sep 2019 12:12:21 GMT"
       - name: Digest
         in: header
-        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
-          in Java returns an object which is not thread safe</p>
+        description: |-
+          SHA-256 hash of body
+          <p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256") in Java returns an object which is not thread safe</p>
         required: true
         schema:
           type: string
@@ -247,7 +301,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NotifyUserOfActivationRequestBodyDTO'
+              $ref: "#/components/schemas/NotifyUserOfActivationRequestBodyDTO"
         required: true
       responses:
         "200":
@@ -259,7 +313,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotifyUserOfActivationErrorResponseDTO'
+                $ref: "#/components/schemas/NotifyUserOfActivationErrorResponseDTO"
   /remove:
     post:
       tags:
@@ -290,8 +344,9 @@ paths:
         example: "Mon, 16 Sep 2019 12:12:21 GMT"
       - name: Digest
         in: header
-        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
-          in Java returns an object which is not thread safe</p>
+        description: |-
+          SHA-256 hash of body
+          <p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256") in Java returns an object which is not thread safe</p>
         required: true
         schema:
           type: string
@@ -300,14 +355,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthenticationBodyDTO'
+              $ref: "#/components/schemas/AuthenticationBodyDTO"
       responses:
         "200":
           description: If status returned is valid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeleteBappResponseDTO'
+                $ref: "#/components/schemas/DeleteBappResponseDTO"
         "400":
           description: In case of error
         "500":
@@ -315,11 +370,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleErrorResponseDTO'
+                $ref: "#/components/schemas/SimpleErrorResponseDTO"
   /selfservice/password_quarantine:
     post:
       tags:
-      - Activation without Code Device (aka Self Service)
+      - App enrollment - Activation without Code Device (aka Self Service)
       summary: Prohibit change of end user password.
       description: "signal to the RA that self-service activation has reached the\
         \ point where password change (automated or manual) MUST be prohibited until\
@@ -347,8 +402,9 @@ paths:
         example: "Mon, 16 Sep 2019 12:12:21 GMT"
       - name: Digest
         in: header
-        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
-          in Java returns an object which is not thread safe</p>
+        description: |-
+          SHA-256 hash of body
+          <p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256") in Java returns an object which is not thread safe</p>
         required: true
         schema:
           type: string
@@ -358,7 +414,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PasswordQuarantineRequestBodyDTO'
+              $ref: "#/components/schemas/PasswordQuarantineRequestBodyDTO"
         required: true
       responses:
         "200":
@@ -366,7 +422,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PasswordQuarantineResponseDTO'
+                $ref: "#/components/schemas/PasswordQuarantineResponseDTO"
         "400":
           description: In case of error
         "500":
@@ -374,12 +430,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleErrorResponseDTO'
+                $ref: "#/components/schemas/SimpleErrorResponseDTO"
       deprecated: true
   /selfservice/send_code_words:
     post:
       tags:
-      - Activation without Code Device (aka Self Service)
+      - App enrollment - Activation without Code Device (aka Self Service)
       summary: Send codewords to an end user.
       description: "request distribution of code words to be sent to a user. Upon\
         \ receiving a request on this end-point, the RA should distribute the provided\
@@ -407,8 +463,9 @@ paths:
         example: "Mon, 16 Sep 2019 12:12:21 GMT"
       - name: Digest
         in: header
-        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
-          in Java returns an object which is not thread safe</p>
+        description: |-
+          SHA-256 hash of body
+          <p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256") in Java returns an object which is not thread safe</p>
         required: true
         schema:
           type: string
@@ -418,7 +475,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SendCodeWordsRequestBodyDTO'
+              $ref: "#/components/schemas/SendCodeWordsRequestBodyDTO"
         required: true
       responses:
         "200":
@@ -430,12 +487,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleErrorResponseDTO'
+                $ref: "#/components/schemas/SimpleErrorResponseDTO"
       deprecated: true
   /selfservice/send_verification_code:
     post:
       tags:
-      - Activation without Code Device (aka Self Service)
+      - App enrollment - Activation without Code Device (aka Self Service)
       summary: Request distribution of a verification code to be sent to an end user.
       description: "<p>Endpoint to request distribution of an a verification code\
         \ to be sent to an end user. Upon receiving a request on this end-point, the\
@@ -465,8 +522,9 @@ paths:
         example: "Mon, 16 Sep 2019 12:12:21 GMT"
       - name: Digest
         in: header
-        description: SHA-256 hash of body<p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256")
-          in Java returns an object which is not thread safe</p>
+        description: |-
+          SHA-256 hash of body
+          <p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256") in Java returns an object which is not thread safe</p>
         required: true
         schema:
           type: string
@@ -476,7 +534,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SendVerificationCodeRequestBodyDTO'
+              $ref: "#/components/schemas/SendVerificationCodeRequestBodyDTO"
         required: true
       responses:
         "200":
@@ -488,7 +546,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleErrorResponseDTO'
+                $ref: "#/components/schemas/SimpleErrorResponseDTO"
       deprecated: true
 components:
   schemas:
@@ -556,14 +614,14 @@ components:
           format: int64
           deprecated: true
         msisdn_reference:
-          $ref: '#/components/schemas/MsisdnReferenceDTO'
+          $ref: "#/components/schemas/MsisdnReferenceDTO"
         distribution_methods:
           type: array
           description: <b>Note:</b> Only required for Self Service activation.<p>List
             of distribution methods.</p>
           deprecated: true
           items:
-            $ref: '#/components/schemas/DistributionMethodDTO'
+            $ref: "#/components/schemas/DistributionMethodDTO"
         status:
           type: string
           description: "Status value for end user's BAPP <ul><li>NOT_ENABLED - BAPP\
@@ -674,7 +732,7 @@ components:
           description: "The id of this activation attempt, used for for logging"
           format: uuid
         msisdn:
-          $ref: '#/components/schemas/MsisdnDTO'
+          $ref: "#/components/schemas/MsisdnDTO"
       description: Request body content for asking an RA to validate end user activation
         attempt.
     MsisdnDTO:
@@ -695,6 +753,93 @@ components:
           example: "4793123456"
       description: "Phone number to standard: <a href=\"https://www.itu.int/rec/T-REC-E.164-201011-I/en\"\
         >T-REC-E.164-201011-I</a>"
+    CheckUserIdentityVerificationResponseDTO:
+      required:
+      - customer_service_contact_details
+      type: object
+      properties:
+        last_verified:
+          $ref: "#/components/schemas/LastVerifiedDTO"
+        customer_service_contact_details:
+          $ref: "#/components/schemas/CustomerServiceContactDetailsDTO"
+      description: The result of querying RA about last end user identity verification
+    CustomerServiceContactDetailsDTO:
+      required:
+      - display_name
+      - phone_number
+      type: object
+      properties:
+        phone_number:
+          type: string
+          description: Phone number (E.164) to the customer service of the financial
+            institution. MUST be a Norwegian number associated with the financial
+            institution
+          example: "+4712345678"
+        display_name:
+          maxLength: 80
+          type: string
+          description: Display name of the financial institution
+          example: Bank of Norway
+      description: Contact details for the customer service of the financial institution
+    LastVerifiedDTO:
+      required:
+      - originator_id
+      - ra_officer_id
+      - timestamp
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Timestamp (ISO-8601 date-time in UTC) when the end user was
+            verified
+          example: 2025-01-01T12:00:00Z
+        originator_id:
+          type: string
+          description: Originator ID of the financial institution. Also known as the
+            bank identifier part of IBAN/BBAN
+          example: "9980"
+        ra_officer_id:
+          maxLength: 80
+          pattern: "^[a-zA-Z0-9@_\\-]+$"
+          type: string
+          description: Any value that can be used to identify the RA officer internally.
+            Can and should be opaque to the caller
+          example: "123456"
+      description: The last time the end user was verified by an RA officer. Only
+        included in the response if the end user has been verified
+    CheckUserIdentityVerificationRequestBodyDTO:
+      required:
+      - activation_id
+      - client_name
+      - nnin
+      - originator_id
+      - request_id
+      type: object
+      properties:
+        client_name:
+          type: string
+          description: Name of client sending the request
+          example: vipps-bapp-client
+        request_id:
+          type: string
+          description: "A unique identifier pr. request, used for log correlation"
+          example: e6dccaf0-c72f-48d9-9dc8-665e51e08e47
+        originator_id:
+          type: string
+          description: "Originator/bank-number for end user's bankID, valid BankID\
+            \ ODS number"
+          example: "9980"
+        nnin:
+          type: string
+          description: "End user's Norwegian national identification number, string\
+            \ of 11 digits"
+          example: "11111111016"
+        activation_id:
+          type: string
+          description: "The id of this activation attempt, used for for logging"
+          format: uuid
+      description: Request body content for asking an RA to validate end user activation
+        attempt.
     StatusBappResponseDTO:
       type: object
       properties:
@@ -745,7 +890,7 @@ components:
           type: array
           description: The distribution methods (if any) used during activation.
           items:
-            $ref: '#/components/schemas/ViaDistributionMethodDTO'
+            $ref: "#/components/schemas/ViaDistributionMethodDTO"
         locale:
           type: string
           description: "Locale of initiating app, either \"no\" for Norwegian and\
@@ -801,7 +946,7 @@ components:
           description: "The id of this activation attempt, used for for logging"
           format: uuid
         activation_metadata:
-          $ref: '#/components/schemas/ActivationMetadataDTO'
+          $ref: "#/components/schemas/ActivationMetadataDTO"
       description: Request body content for asking an RA to send a notification to
         an end user
     ViaDistributionMethodDTO:
