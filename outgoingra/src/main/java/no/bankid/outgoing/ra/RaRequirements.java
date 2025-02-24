@@ -248,7 +248,7 @@ public interface RaRequirements {
     @Operation(summary = "Check if a users identity has been verified by an RA officer",
             description = "",
             tags = {APP_ENROLLMENT_IDENTIFICATION_BY_RA_OFFICER})
-    @ApiResponse(responseCode = "200", description = ""
+    @ApiResponse(responseCode = "200", description = "If check for identity verification has been performed"
             , content = @Content(schema = @Schema(implementation = CheckUserIdentityVerificationResponseDTO.class)))
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
