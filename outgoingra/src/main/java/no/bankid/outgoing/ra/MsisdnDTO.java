@@ -7,14 +7,14 @@ public class MsisdnDTO {
     @Schema(
             description = "Country code length, this is provided purely for convenience.",
             example = "2",
-            required = true
+            requiredMode = Schema.RequiredMode.REQUIRED
     )
     public int cc_count;
 
     @Schema(
             description = "Phone number, always provided with country code and without leading zeroes or +.",
             example = "4793123456",
-            required = true
+            requiredMode = Schema.RequiredMode.REQUIRED
     )
     public String e164_number;
 }

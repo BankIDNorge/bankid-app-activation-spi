@@ -68,13 +68,13 @@ public class CheckUserResponseDTO {
 
         @Schema(
                 description = "When was msisdn last confirmed to be correct by the user, ms since epoch, UTC",
-                required = true
+                requiredMode = Schema.RequiredMode.REQUIRED
         )
         public long last_confirmed_by_user;
 
         @Schema(
                 description = "When was msisdn last modified, ms since epoch, UTC",
-                required = true
+                requiredMode = Schema.RequiredMode.REQUIRED
         )
         public long last_modified;
     }

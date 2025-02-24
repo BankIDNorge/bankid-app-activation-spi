@@ -8,13 +8,13 @@ import java.util.UUID;
 public class CheckUserRequestBodyDTO extends AuthenticationBodyDTO {
     @Schema(
             description = "The id of this activation attempt, used for for logging",
-            required = true
+            requiredMode = Schema.RequiredMode.REQUIRED
     )
     public UUID activation_id;
 
     @Schema(
             description = "Phone number",
-            required = true
+            requiredMode = Schema.RequiredMode.REQUIRED
     )
     public MsisdnDTO msisdn;
 }
