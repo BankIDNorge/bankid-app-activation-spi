@@ -25,9 +25,3 @@ For information about API keys, product activation, etc see [Getting Started](..
 For API documentation and development guidelines please see our [BankID app API guide](../main/bankid-app-api.md).
 
 You can peruse the SPI reference documentation as [Swagger](https://bankidnorge.github.io/bankid-app-activation-spi/) or [ReDoc](https://bankidnorge.github.io/bankid-app-activation-spi/redoc.html).
-
-Building this documentation, run 
-
-`mvn clean compile -f outgoingra`
-
-the result will be placed in docs catalogue 
