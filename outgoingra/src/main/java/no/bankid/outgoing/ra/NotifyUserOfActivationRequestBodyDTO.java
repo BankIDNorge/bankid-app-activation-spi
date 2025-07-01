@@ -37,11 +37,10 @@ public class NotifyUserOfActivationRequestBodyDTO extends AuthenticationBodyDTO 
                 "<li> - activation_code: A single activation code provided over a secure channel. </li>" +
                 "<li> - selfservice: Activation codes provided over two insecure channels. </li>" +
                 "<li> - bankid_auth: Activation through a BankID authentication. </li>" +
-                "<li> - raofficer_activation: Activation through RA officer of the bank. </li>" +
                 "</ul>", example = "selfservice"
         )
         public enum FlowType {
-            activation_code, selfservice, bankid_auth, raofficer_activation
+            activation_code, selfservice, bankid_auth
         }
 
         public FlowType flow;
