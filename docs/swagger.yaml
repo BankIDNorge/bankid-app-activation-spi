@@ -3,7 +3,7 @@ info:
   title: BankID RA Service Provider Interface (SPI) for activation of BankID App
   description: |
     Defines the interface to be provided by a Registration Authority service to support activation of BankID App as a HA2 element for an end user's Netcentric BankID.<p>An RA implementing the <i>OTP administration</i> group of operations may offer BankID App to all its end users having a functioning Netcentric BankID.</p><h6>Internal note: This SPI version corresponds to the document '<a href="https://bidbax.atlassian.net/wiki/spaces/BAPP/pages/20585103/Specification+of+Solutions+for+Activation+of+BankID+App+as+HA2-element">Specification of Solutions for Activation of BankID App as HA2-elements</a>' version v.63</h6>
-  version: 1.2.0
+  version: 1.4.0
 servers:
 - url: https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp
   description: Preprod RA-lite
@@ -783,6 +783,7 @@ components:
       description: Contact details for the customer service of the financial institution
     LastVerifiedDTO:
       required:
+      - activation_id
       - originator_id
       - ra_officer_id
       - timestamp
@@ -805,6 +806,11 @@ components:
           description: Any value that can be used to identify the RA officer internally.
             Can and should be opaque to the caller
           example: "123456"
+        activation_id:
+          type: string
+          description: "The id of this activation attempt, used for logging. Same\
+            \ as the activation_id from the request"
+          format: uuid
       description: The last time the end user was verified by an RA officer. Only
         included in the response if the end user has been verified
     CheckUserIdentityVerificationRequestBodyDTO:
