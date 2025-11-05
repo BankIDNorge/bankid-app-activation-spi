@@ -3,7 +3,7 @@ info:
   title: BankID RA Service Provider Interface (SPI) for activation of BankID App
   description: |
     Defines the interface to be provided by a Registration Authority service to support activation of BankID App as a HA2 element for an end user's Netcentric BankID.<p>An RA implementing the <i>OTP administration</i> group of operations may offer BankID App to all its end users having a functioning Netcentric BankID.</p><h6>Internal note: This SPI version corresponds to the document '<a href="https://bidbax.atlassian.net/wiki/spaces/BAPP/pages/20585103/Specification+of+Solutions+for+Activation+of+BankID+App+as+HA2-element">Specification of Solutions for Activation of BankID App as HA2-elements</a>' version v.63</h6>
-  version: 1.4.0
+  version: 1.5.0
 servers:
 - url: https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp
   description: Preprod RA-lite
