@@ -2,6 +2,8 @@ package no.bankid.outgoing.ra;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.UUID;
+
 @Schema(description = "The result of querying RA about last end user identity verification")
 public class CheckUserIdentityVerificationResponseDTO {
 
@@ -28,6 +30,12 @@ public class CheckUserIdentityVerificationResponseDTO {
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
         public String ra_officer_id;
+
+        @Schema(
+                description = "The id of this activation attempt, used for logging. Same as the activation_id from the request",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
+        public UUID activation_id;
     }
 
     public static class CustomerServiceContactDetailsDTO {
