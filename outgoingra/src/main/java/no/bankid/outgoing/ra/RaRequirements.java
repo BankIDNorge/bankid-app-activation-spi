@@ -27,7 +27,7 @@ import static no.bankid.outgoing.ra.HttpSignatureHeaders.SIGNATURE;
 @OpenAPIDefinition(
         info = @Info(
                 title = "BankID RA Service Provider Interface (SPI) for activation of BankID App",
-                version = "1.4.0",
+                version = "1.5.0",
                 description = """
                         Defines the interface to be provided by a Registration Authority service to \
                         support activation of BankID App as a HA2 element for an end user's Netcentric BankID.\
@@ -245,10 +245,31 @@ public interface RaRequirements {
             CheckUserRequestBodyDTO checkUserRequestBody
     );
 
-    @Operation(summary = "Check if a users identity has been verified by an RA officer",
-            description = "",
+    @Operation(summary = "Get customer service contact details for booking an appointment",
+            description = "Returns contact information for the financial institution's customer service to allow the user to book an appointment for physical presence verification.",
             tags = {APP_ENROLLMENT_IDENTIFICATION_BY_RA_OFFICER})
-    @ApiResponse(responseCode = "200", description = "If check for identity verification has been performed"
+    @ApiResponse(responseCode = "200", description = "Customer service contact details retrieved successfully"
+            , content = @Content(schema = @Schema(implementation = CustomerServiceContactResponseDTO.class)))
+    @ApiResponse(responseCode = "400", description = "In case of error")
+    @ApiResponse(responseCode = "500", description = "In case of error",
+            content = @Content(schema = @Schema(implementation = SimpleErrorResponseDTO.class)))
+    @Path("ra-officer/customer_service_contact")
+    @POST
+    Response getCustomerServiceContact(
+            @Parameter(description = DESCRIPTION_SIGNATURE, example = EXAMPLE_SIGNATURE, required = true)
+            @HeaderParam(SIGNATURE) String httpSignature,
+            @Parameter(description = DESCRIPTION_DATE, example = EXAMPLE_DATE, required = true)
+            @HeaderParam(DATE) String date,
+            @Parameter(description = DESCRIPTION_DIGEST, example = EXAMPLE_DIGEST, required = true)
+            @HeaderParam(DIGEST) String digest,
+            @RequestBody(required = true)
+            CustomerServiceContactRequestBodyDTO customerServiceContactRequestBody
+    );
+
+    @Operation(summary = "Check if user identity has been verified by RA officer",
+            description = "Validates the verification code provided by the RA Officer during physical presence verification and marks it as consumed (single-use).",
+            tags = {APP_ENROLLMENT_IDENTIFICATION_BY_RA_OFFICER})
+    @ApiResponse(responseCode = "200", description = "Identity verification result"
             , content = @Content(schema = @Schema(implementation = CheckUserIdentityVerificationResponseDTO.class)))
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
@@ -262,7 +283,7 @@ public interface RaRequirements {
             @HeaderParam(DATE) String date,
             @Parameter(description = DESCRIPTION_DIGEST, example = EXAMPLE_DIGEST, required = true)
             @HeaderParam(DIGEST) String digest,
-            @RequestBody(description = "", required = true)
+            @RequestBody(required = true)
             CheckUserIdentityVerificationRequestBodyDTO checkUserIdentificationRequestBody
     );
 

@@ -3,7 +3,7 @@ info:
   title: BankID RA Service Provider Interface (SPI) for activation of BankID App
   description: |
     Defines the interface to be provided by a Registration Authority service to support activation of BankID App as a HA2 element for an end user's Netcentric BankID.<p>An RA implementing the <i>OTP administration</i> group of operations may offer BankID App to all its end users having a functioning Netcentric BankID.</p><h6>Internal note: This SPI version corresponds to the document '<a href="https://bidbax.atlassian.net/wiki/spaces/BAPP/pages/20585103/Specification+of+Solutions+for+Activation+of+BankID+App+as+HA2-element">Specification of Solutions for Activation of BankID App as HA2-elements</a>' version v.63</h6>
-  version: 1.4.0
+  version: 1.5.0
 servers:
 - url: https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp
   description: Preprod RA-lite
@@ -138,7 +138,9 @@ paths:
     post:
       tags:
       - App enrollment - Identification by RA officer
-      summary: Check if a users identity has been verified by an RA officer
+      summary: Check if user identity has been verified by RA officer
+      description: Validates the verification code provided by the RA Officer during
+        physical presence verification and marks it as consumed (single-use).
       operationId: checkUserIdentityVerification
       parameters:
       - name: Signature
@@ -177,7 +179,7 @@ paths:
         required: true
       responses:
         "200":
-          description: If check for identity verification has been performed
+          description: Identity verification result
           content:
             application/json:
               schema:
@@ -239,6 +241,64 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/StatusBappResponseDTO"
+        "400":
+          description: In case of error
+        "500":
+          description: In case of error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleErrorResponseDTO"
+  /ra-officer/customer_service_contact:
+    post:
+      tags:
+      - App enrollment - Identification by RA officer
+      summary: Get customer service contact details for booking an appointment
+      description: Returns contact information for the financial institution's customer
+        service to allow the user to book an appointment for physical presence verification.
+      operationId: getCustomerServiceContact
+      parameters:
+      - name: Signature
+        in: header
+        description: "The Signature element, as described in <a href=\"https://tools.ietf.org/html/draft-cavage-http-signatures-12\"\
+          >Internet-Draft - Signing HTTP Messages</a>."
+        required: true
+        schema:
+          type: string
+        example: "keyId=\"fa998090\",algorithm=\"rsa-sha256\",headers=\"(request-target)\
+          \ date digest\",signature=\"o7zK892....\""
+      - name: Date
+        in: header
+        description: "The date element, required format is the format named 'preferred'\
+          \ specified in <a href=\"https://tools.ietf.org/html/rfc7231#section-7.1.1.1\"\
+          >RFC 7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>.<p><b>Implementation\
+          \ tips:</b> Format in Java is 'EEE, dd MMM yyyy HH:mm:ss zzz', locale english.</p>"
+        required: true
+        schema:
+          type: string
+        example: "Mon, 16 Sep 2019 12:12:21 GMT"
+      - name: Digest
+        in: header
+        description: |-
+          SHA-256 hash of body
+          <p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256") in Java returns an object which is not thread safe</p>
+        required: true
+        schema:
+          type: string
+        example: SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerServiceContactRequestBodyDTO"
+        required: true
+      responses:
+        "200":
+          description: Customer service contact details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerServiceContactResponseDTO"
         "400":
           description: In case of error
         "500":
@@ -755,14 +815,83 @@ components:
         >T-REC-E.164-201011-I</a>"
     CheckUserIdentityVerificationResponseDTO:
       required:
-      - customer_service_contact_details
+      - verified
       type: object
       properties:
-        last_verified:
-          $ref: "#/components/schemas/LastVerifiedDTO"
-        customer_service_contact_details:
-          $ref: "#/components/schemas/CustomerServiceContactDetailsDTO"
-      description: The result of querying RA about last end user identity verification
+        verified:
+          type: boolean
+          description: Whether the verification code was valid and successfully consumed
+        error:
+          type: string
+          description: "Error code if verification failed. Possible values: INVALID\
+            \ (verification code does not match, a new code must be generated), EXPIRED\
+            \ (verification code has expired, codes expire after 5 minutes), CONSUMED\
+            \ (verification code has already been used)"
+          enum:
+          - INVALID
+          - EXPIRED
+          - CONSUMED
+      description: "Response from identity verification check. Note: Verification\
+        \ codes are single-attempt - if the code is invalid, a new code must be generated\
+        \ by the RA officer."
+    CheckUserIdentityVerificationRequestBodyDTO:
+      required:
+      - activation_id
+      - client_name
+      - nnin
+      - originator_id
+      - request_id
+      - verification_code
+      type: object
+      properties:
+        client_name:
+          type: string
+          description: Name of client sending the request
+          example: vipps-bapp-client
+        request_id:
+          type: string
+          description: "A unique identifier pr. request, used for log correlation"
+          example: e6dccaf0-c72f-48d9-9dc8-665e51e08e47
+        originator_id:
+          type: string
+          description: "Originator/bank-number for end user's bankID, valid BankID\
+            \ ODS number"
+          example: "9980"
+        nnin:
+          type: string
+          description: "End user's Norwegian national identification number, string\
+            \ of 11 digits"
+          example: "11111111016"
+        activation_id:
+          type: string
+          description: "The id of this activation attempt, used for logging"
+          format: uuid
+        verification_code:
+          type: string
+          description: Verification code provided by RA Officer to user during physical
+            presence verification. Validation is case-insensitive for easier input.
+          example: MOUNTAIN RIVER
+      description: Request body for checking user identity verification from RA officer.
+    StatusBappResponseDTO:
+      type: object
+      properties:
+        status:
+          type: string
+          description: "Status value for end user's BAPP <ul><li>NOT_ENABLED - BAPP\
+            \ is not enabled, but could be</li><li>ENABLED - BAPP is enabled for the\
+            \ end user</li><li>NOT_AVAILABLE - BAPP is not available for the bank</li><li>BANK_ID_NOT_AVAILABLE\
+            \ - end user doesn't have active BankID</li><li>BLOCKED_BY_BANK - end\
+            \ user is not allowed to use BAPP</li><li>BLOCKED_IN_ODS - BAPP is connected\
+            \ to the BankID, but was blocked by ODS because of wrong attempts</li></ul>"
+          enum:
+          - NOT_ENABLED
+          - ENABLED
+          - NOT_AVAILABLE
+          - BANK_ID_NOT_AVAILABLE
+          - BLOCKED_BY_BANK
+          - BLOCKED_IN_ODS
+      description: The result of asking if BankID app is enabled for an end user's
+        BankID
     CustomerServiceContactDetailsDTO:
       required:
       - display_name
@@ -781,41 +910,17 @@ components:
           description: Display name of the financial institution
           example: Bank of Norway
       description: Contact details for the customer service of the financial institution
-    LastVerifiedDTO:
+    CustomerServiceContactResponseDTO:
       required:
-      - activation_id
-      - originator_id
-      - ra_officer_id
-      - timestamp
+      - customer_service_contact_details
       type: object
       properties:
-        timestamp:
-          type: string
-          description: Timestamp (ISO-8601 date-time in UTC) when the end user was
-            verified
-          example: 2025-01-01T12:00:00Z
-        originator_id:
-          type: string
-          description: Originator ID of the financial institution. Also known as the
-            bank identifier part of IBAN/BBAN
-          example: "9980"
-        ra_officer_id:
-          maxLength: 80
-          pattern: "^[a-zA-Z0-9@_\\-]+$"
-          type: string
-          description: Any value that can be used to identify the RA officer internally.
-            Can and should be opaque to the caller
-          example: "123456"
-        activation_id:
-          type: string
-          description: "The id of this activation attempt, used for logging. Same\
-            \ as the activation_id from the request"
-          format: uuid
-      description: The last time the end user was verified by an RA officer. Only
-        included in the response if the end user has been verified
-    CheckUserIdentityVerificationRequestBodyDTO:
+        customer_service_contact_details:
+          $ref: "#/components/schemas/CustomerServiceContactDetailsDTO"
+      description: Response containing customer service contact details for booking
+        an appointment.
+    CustomerServiceContactRequestBodyDTO:
       required:
-      - activation_id
       - client_name
       - nnin
       - originator_id
@@ -840,32 +945,7 @@ components:
           description: "End user's Norwegian national identification number, string\
             \ of 11 digits"
           example: "11111111016"
-        activation_id:
-          type: string
-          description: "The id of this activation attempt, used for for logging"
-          format: uuid
-      description: Request body content for asking an RA to validate end user activation
-        attempt.
-    StatusBappResponseDTO:
-      type: object
-      properties:
-        status:
-          type: string
-          description: "Status value for end user's BAPP <ul><li>NOT_ENABLED - BAPP\
-            \ is not enabled, but could be</li><li>ENABLED - BAPP is enabled for the\
-            \ end user</li><li>NOT_AVAILABLE - BAPP is not available for the bank</li><li>BANK_ID_NOT_AVAILABLE\
-            \ - end user doesn't have active BankID</li><li>BLOCKED_BY_BANK - end\
-            \ user is not allowed to use BAPP</li><li>BLOCKED_IN_ODS - BAPP is connected\
-            \ to the BankID, but was blocked by ODS because of wrong attempts</li></ul>"
-          enum:
-          - NOT_ENABLED
-          - ENABLED
-          - NOT_AVAILABLE
-          - BANK_ID_NOT_AVAILABLE
-          - BLOCKED_BY_BANK
-          - BLOCKED_IN_ODS
-      description: The result of asking if BankID app is enabled for an end user's
-        BankID
+      description: Request body for getting customer service contact details.
     NotifyUserOfActivationErrorResponseDTO:
       type: object
       properties:
