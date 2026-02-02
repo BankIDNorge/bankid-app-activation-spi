@@ -21,7 +21,7 @@ public class CheckUserIdentityVerificationResponseDTO {
     public boolean verified;
 
     @Schema(
-            description = "Error code if verification failed. Possible values: INVALID (verification code does not match, a new code must be generated), EXPIRED (verification code has expired, codes expire after 5 minutes), CONSUMED (verification code has already been used)",
+            description = "Error code if verification failed. Possible values: INVALID (verification code does not match, a new code must be generated), EXPIRED (verification code has expired), CONSUMED (verification code has already been used)",
             requiredMode = NOT_REQUIRED
     )
     public ErrorCode error;
