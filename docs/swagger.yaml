@@ -825,7 +825,7 @@ components:
           type: string
           description: "Error code if verification failed. Possible values: INVALID\
             \ (verification code does not match, a new code must be generated), EXPIRED\
-            \ (verification code has expired, codes expire after 5 minutes), CONSUMED\
+            \ (verification code has expired), CONSUMED\
             \ (verification code has already been used)"
           enum:
           - INVALID
