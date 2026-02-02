@@ -909,9 +909,8 @@ components:
           type: string
           description: Phone number (E.164) to the customer service of the financial
             institution. MUST be a Norwegian number associated with the financial
-            institution. Provided with country code and without leading zeroes or
-            +.
-          example: "4712345678"
+            institution
+          example: "+4712345678"
         display_name:
           maxLength: 80
           type: string
@@ -930,7 +929,6 @@ components:
     CustomerServiceContactRequestBodyDTO:
       required:
       - client_name
-      - nnin
       - originator_id
       - request_id
       type: object
@@ -948,11 +946,6 @@ components:
           description: "Originator/bank-number for end user's bankID, valid BankID\
             \ ODS number"
           example: "9980"
-        nnin:
-          type: string
-          description: "End user's Norwegian national identification number, string\
-            \ of 11 digits"
-          example: "11111111016"
       description: Request body for getting customer service contact details.
     NotifyUserOfActivationErrorResponseDTO:
       type: object

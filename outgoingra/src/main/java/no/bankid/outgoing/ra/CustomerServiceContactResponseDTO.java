@@ -10,8 +10,8 @@ public class CustomerServiceContactResponseDTO {
     public static class CustomerServiceContactDetailsDTO {
 
         @Schema(
-                description = "Phone number (E.164) to the customer service of the financial institution. MUST be a Norwegian number associated with the financial institution. Provided with country code and without leading zeroes or +.",
-                example = "4712345678",
+                description = "Phone number (E.164) to the customer service of the financial institution. MUST be a Norwegian number associated with the financial institution",
+                example = "+4712345678",
                 requiredMode = REQUIRED
         )
         public String phone_number;
