@@ -15,9 +15,10 @@ public class CheckUserIdentityVerificationRequestBodyDTO extends AuthenticationB
     public UUID activation_id;
 
     @Schema(
-            description = "Verification code provided by RA Officer to user during physical presence verification. Validation is case-insensitive for easier input.",
+            description = "Short verification code provided by RA Officer to user during physical presence verification. Validation is case-insensitive for easier input. Maximum length is 64 characters.",
             example = "MOUNTAIN RIVER",
-            requiredMode = REQUIRED
+            requiredMode = REQUIRED,
+            maxLength = 64
     )
     public String verification_code;
 }
