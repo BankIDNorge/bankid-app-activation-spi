@@ -2,69 +2,27 @@ package no.bankid.outgoing.ra;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.util.UUID;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-@Schema(description = "The result of querying RA about last end user identity verification")
+@Schema(description = "Response from identity verification check. The code is consumed only upon successful verification. Failed attempts (INVALID) do not consume the code, allowing the user to retry.")
 public class CheckUserIdentityVerificationResponseDTO {
 
-    public static class LastVerifiedDTO {
-        @Schema(
-                description = "Timestamp (ISO-8601 date-time in UTC) when the end user was verified",
-                example = "2025-01-01T12:00:00Z",
-                requiredMode = Schema.RequiredMode.REQUIRED
-        )
-        public String timestamp;
-
-        @Schema(
-                description = "Originator ID of the financial institution. Also known as the bank identifier part of IBAN/BBAN",
-                example = "9980",
-                requiredMode = Schema.RequiredMode.REQUIRED
-        )
-        public String originator_id;
-
-        @Schema(
-                description = "Any value that can be used to identify the RA officer internally. Can and should be opaque to the caller",
-                example = "123456",
-                maxLength = 80,
-                pattern = "^[a-zA-Z0-9@_\\-]+$",
-                requiredMode = Schema.RequiredMode.REQUIRED
-        )
-        public String ra_officer_id;
-
-        @Schema(
-                description = "The id of this activation attempt, used for logging. Same as the activation_id from the request",
-                requiredMode = Schema.RequiredMode.REQUIRED
-        )
-        public UUID activation_id;
-    }
-
-    public static class CustomerServiceContactDetailsDTO {
-
-        @Schema(
-                description = "Phone number (E.164) to the customer service of the financial institution. MUST be a Norwegian number associated with the financial institution",
-                example = "+4712345678",
-                requiredMode = Schema.RequiredMode.REQUIRED
-        )
-        public String phone_number;
-
-        @Schema(
-                description = "Display name of the financial institution",
-                example = "Bank of Norway",
-                maxLength = 80,
-                requiredMode = Schema.RequiredMode.REQUIRED
-        )
-        public String display_name;
+    public enum ErrorCode {
+        INVALID,
+        EXPIRED,
+        CONSUMED
     }
 
     @Schema(
-            description = "The last time the end user was verified by an RA officer. Only included in the response if the end user has been verified",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+            description = "Whether the verification code was valid and has been consumed. When true, the error field will be absent. When false, the error field MUST be present.",
+            requiredMode = REQUIRED
     )
-    public LastVerifiedDTO last_verified;
+    public boolean verified;
 
     @Schema(
-            description = "Contact details for the customer service of the financial institution",
-            requiredMode = Schema.RequiredMode.REQUIRED
+            description = "Error code if verification failed (only present when verified=false). Possible values: INVALID (verification code does not match, user may retry), EXPIRED (verification code has expired, codes expire after 15 minutes), CONSUMED (verification code has already been successfully used). This field MUST be present when verified=false and MUST be absent when verified=true.",
+            requiredMode = NOT_REQUIRED
     )
-    public CustomerServiceContactDetailsDTO customer_service_contact_details;
+    public ErrorCode error;
 }

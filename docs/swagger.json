@@ -3,7 +3,7 @@
   "info" : {
     "title" : "BankID RA Service Provider Interface (SPI) for activation of BankID App",
     "description" : "Defines the interface to be provided by a Registration Authority service to support activation of BankID App as a HA2 element for an end user's Netcentric BankID.<p>An RA implementing the <i>OTP administration</i> group of operations may offer BankID App to all its end users having a functioning Netcentric BankID.</p><h6>Internal note: This SPI version corresponds to the document '<a href=\"https://bidbax.atlassian.net/wiki/spaces/BAPP/pages/20585103/Specification+of+Solutions+for+Activation+of+BankID+App+as+HA2-element\">Specification of Solutions for Activation of BankID App as HA2-elements</a>' version v.63</h6>\n",
-    "version" : "1.4.0"
+    "version" : "1.5.0"
   },
   "servers" : [ {
     "url" : "https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp",
@@ -169,7 +169,8 @@
     "/ra-officer/check_user_identity_verification" : {
       "post" : {
         "tags" : [ "App enrollment - Identification by RA officer" ],
-        "summary" : "Check if a users identity has been verified by an RA officer",
+        "summary" : "Check if user identity has been verified by RA officer",
+        "description" : "Validates the verification code provided by the RA Officer during physical presence verification and marks it as consumed (single-use).",
         "operationId" : "checkUserIdentityVerification",
         "parameters" : [ {
           "name" : "Signature",
@@ -211,7 +212,7 @@
         },
         "responses" : {
           "200" : {
-            "description" : "If check for identity verification has been performed",
+            "description" : "Identity verification result",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -286,6 +287,77 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/StatusBappResponseDTO"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "In case of error"
+          },
+          "500" : {
+            "description" : "In case of error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SimpleErrorResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ra-officer/customer_service_info" : {
+      "post" : {
+        "tags" : [ "App enrollment - Identification by RA officer" ],
+        "summary" : "Get customer service contact details for booking an appointment",
+        "description" : "Returns contact information for the financial institution's customer service to allow the user to book an appointment for physical presence verification.",
+        "operationId" : "getCustomerServiceContact",
+        "parameters" : [ {
+          "name" : "Signature",
+          "in" : "header",
+          "description" : "The Signature element, as described in <a href=\"https://tools.ietf.org/html/draft-cavage-http-signatures-12\">Internet-Draft - Signing HTTP Messages</a>.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "keyId=\"fa998090\",algorithm=\"rsa-sha256\",headers=\"(request-target) date digest\",signature=\"o7zK892....\""
+        }, {
+          "name" : "Date",
+          "in" : "header",
+          "description" : "The date element, required format is the format named 'preferred' specified in <a href=\"https://tools.ietf.org/html/rfc7231#section-7.1.1.1\">RFC 7231 - Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>.<p><b>Implementation tips:</b> Format in Java is 'EEE, dd MMM yyyy HH:mm:ss zzz', locale english.</p>",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Mon, 16 Sep 2019 12:12:21 GMT"
+        }, {
+          "name" : "Digest",
+          "in" : "header",
+          "description" : "SHA-256 hash of body\n<p><b>Implementation tips:</b>MessageDigest.getIinstance(\"SHA-256\") in Java returns an object which is not thread safe</p>",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE="
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CustomerServiceContactRequestBodyDTO"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Customer service contact details retrieved successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CustomerServiceInfoResponseDTO"
                 }
               }
             }
@@ -851,67 +923,23 @@
         "description" : "Phone number to standard: <a href=\"https://www.itu.int/rec/T-REC-E.164-201011-I/en\">T-REC-E.164-201011-I</a>"
       },
       "CheckUserIdentityVerificationResponseDTO" : {
-        "required" : [ "customer_service_contact_details" ],
+        "required" : [ "verified" ],
         "type" : "object",
         "properties" : {
-          "last_verified" : {
-            "$ref" : "#/components/schemas/LastVerifiedDTO"
+          "verified" : {
+            "type" : "boolean",
+            "description" : "Whether the verification code was valid and has been consumed. When true, the error field will be absent. When false, the error field MUST be present."
           },
-          "customer_service_contact_details" : {
-            "$ref" : "#/components/schemas/CustomerServiceContactDetailsDTO"
+          "error" : {
+            "type" : "string",
+            "description" : "Error code if verification failed (only present when verified=false). Possible values: INVALID (verification code does not match, user may retry), EXPIRED (verification code has expired, codes expire after 15 minutes), CONSUMED (verification code has already been successfully used). This field MUST be present when verified=false and MUST be absent when verified=true.",
+            "enum" : [ "INVALID", "EXPIRED", "CONSUMED" ]
           }
         },
-        "description" : "The result of querying RA about last end user identity verification"
-      },
-      "CustomerServiceContactDetailsDTO" : {
-        "required" : [ "display_name", "phone_number" ],
-        "type" : "object",
-        "properties" : {
-          "phone_number" : {
-            "type" : "string",
-            "description" : "Phone number (E.164) to the customer service of the financial institution. MUST be a Norwegian number associated with the financial institution",
-            "example" : "+4712345678"
-          },
-          "display_name" : {
-            "maxLength" : 80,
-            "type" : "string",
-            "description" : "Display name of the financial institution",
-            "example" : "Bank of Norway"
-          }
-        },
-        "description" : "Contact details for the customer service of the financial institution"
-      },
-      "LastVerifiedDTO" : {
-        "required" : [ "activation_id", "originator_id", "ra_officer_id", "timestamp" ],
-        "type" : "object",
-        "properties" : {
-          "timestamp" : {
-            "type" : "string",
-            "description" : "Timestamp (ISO-8601 date-time in UTC) when the end user was verified",
-            "example" : "2025-01-01T12:00:00Z"
-          },
-          "originator_id" : {
-            "type" : "string",
-            "description" : "Originator ID of the financial institution. Also known as the bank identifier part of IBAN/BBAN",
-            "example" : "9980"
-          },
-          "ra_officer_id" : {
-            "maxLength" : 80,
-            "pattern" : "^[a-zA-Z0-9@_\\-]+$",
-            "type" : "string",
-            "description" : "Any value that can be used to identify the RA officer internally. Can and should be opaque to the caller",
-            "example" : "123456"
-          },
-          "activation_id" : {
-            "type" : "string",
-            "description" : "The id of this activation attempt, used for logging. Same as the activation_id from the request",
-            "format" : "uuid"
-          }
-        },
-        "description" : "The last time the end user was verified by an RA officer. Only included in the response if the end user has been verified"
+        "description" : "Response from identity verification check. The code is consumed only upon successful verification. Failed attempts (INVALID) do not consume the code, allowing the user to retry."
       },
       "CheckUserIdentityVerificationRequestBodyDTO" : {
-        "required" : [ "activation_id", "client_name", "nnin", "originator_id", "request_id" ],
+        "required" : [ "activation_id", "client_name", "nnin", "originator_id", "request_id", "verification_code" ],
         "type" : "object",
         "properties" : {
           "client_name" : {
@@ -936,11 +964,18 @@
           },
           "activation_id" : {
             "type" : "string",
-            "description" : "The id of this activation attempt, used for for logging",
+            "description" : "The id of this activation attempt, used for logging",
             "format" : "uuid"
+          },
+          "verification_code" : {
+            "maxLength" : 1024,
+            "minLength" : 6,
+            "type" : "string",
+            "description" : "Verification code provided by RA Officer to user. Currently the code MUST be a string of 6-digits. In the future, it may be changed to a string with a length of 6-1024 characters.",
+            "example" : "123456"
           }
         },
-        "description" : "Request body content for asking an RA to validate end user activation attempt."
+        "description" : "Request body for checking user identity verification from RA officer."
       },
       "StatusBappResponseDTO" : {
         "type" : "object",
@@ -952,6 +987,78 @@
           }
         },
         "description" : "The result of asking if BankID app is enabled for an end user's BankID"
+      },
+      "CustomerServiceInfoDTO" : {
+        "required" : [ "code_length", "display_name", "phone_number", "verification_method" ],
+        "type" : "object",
+        "properties" : {
+          "phone_number" : {
+            "type" : "string",
+            "description" : "Phone number (E.164) to the customer service of the financial institution. MUST be a Norwegian number associated with the financial institution",
+            "example" : "+4712345678"
+          },
+          "display_name" : {
+            "maxLength" : 80,
+            "type" : "string",
+            "description" : "Display name of the financial institution",
+            "example" : "Bank of Norway"
+          },
+          "verification_method" : {
+            "type" : "string",
+            "description" : "The verification method the financial institution will use when the user visits the branch. MANUAL_CODE means the RA officer will verbally provide a code; QR_CODE means the user will scan a QR code.",
+            "enum" : [ "MANUAL_CODE", "QR_CODE" ]
+          },
+          "code_length" : {
+            "type" : "integer",
+            "description" : "Length of the verification code the RA system will generate.",
+            "format" : "int32",
+            "example" : 6
+          },
+          "instructions" : {
+            "maxLength" : 250,
+            "type" : "string",
+            "description" : "Optional instructions from the financial institution to the user, for example directions or what to bring. Maximum 250 characters.",
+            "example" : "Please bring a valid passport or national ID card to your appointment."
+          },
+          "booking_url" : {
+            "type" : "string",
+            "description" : "Optional URL for booking an appointment at the financial institution's branch.",
+            "example" : "https://www.bankofnorway.no/book-appointment"
+          }
+        },
+        "description" : "Customer service information for the financial institution"
+      },
+      "CustomerServiceInfoResponseDTO" : {
+        "required" : [ "customer_service_info" ],
+        "type" : "object",
+        "properties" : {
+          "customer_service_info" : {
+            "$ref" : "#/components/schemas/CustomerServiceInfoDTO"
+          }
+        },
+        "description" : "Response containing customer service information for the financial institution."
+      },
+      "CustomerServiceContactRequestBodyDTO" : {
+        "required" : [ "client_name", "originator_id", "request_id" ],
+        "type" : "object",
+        "properties" : {
+          "client_name" : {
+            "type" : "string",
+            "description" : "Name of client sending the request",
+            "example" : "vipps-bapp-client"
+          },
+          "request_id" : {
+            "type" : "string",
+            "description" : "A unique identifier pr. request, used for log correlation",
+            "example" : "e6dccaf0-c72f-48d9-9dc8-665e51e08e47"
+          },
+          "originator_id" : {
+            "type" : "string",
+            "description" : "Originator/bank-number for end user's bankID, valid BankID ODS number",
+            "example" : "9980"
+          }
+        },
+        "description" : "Request body for getting customer service contact details."
       },
       "NotifyUserOfActivationErrorResponseDTO" : {
         "type" : "object",
