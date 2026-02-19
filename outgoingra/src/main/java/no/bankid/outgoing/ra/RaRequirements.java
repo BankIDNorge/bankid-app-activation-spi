@@ -249,11 +249,11 @@ public interface RaRequirements {
             description = "Returns contact information for the financial institution's customer service to allow the user to book an appointment for physical presence verification.",
             tags = {APP_ENROLLMENT_IDENTIFICATION_BY_RA_OFFICER})
     @ApiResponse(responseCode = "200", description = "Customer service contact details retrieved successfully"
-            , content = @Content(schema = @Schema(implementation = CustomerServiceContactResponseDTO.class)))
+            , content = @Content(schema = @Schema(implementation = CustomerServiceInfoResponseDTO.class)))
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
             content = @Content(schema = @Schema(implementation = SimpleErrorResponseDTO.class)))
-    @Path("ra-officer/customer_service_contact")
+    @Path("ra-officer/customer_service_info")
     @POST
     Response getCustomerServiceContact(
             @Parameter(description = DESCRIPTION_SIGNATURE, example = EXAMPLE_SIGNATURE, required = true)
