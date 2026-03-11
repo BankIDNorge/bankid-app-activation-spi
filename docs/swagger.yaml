@@ -820,8 +820,8 @@ components:
       properties:
         verified:
           type: boolean
-          description: "verified true when provided code is matched and will be false\
-            \ if there is any error i-e: INVALID, EXPIRED or CONSUMED"
+          description: "True when the provided code matches; false if there is an\
+            \ error, i.e. INVALID, EXPIRED, or CONSUMED."
           example: false
         error:
           type: string
@@ -875,8 +875,8 @@ components:
           minLength: 6
           type: string
           description: "Verification code provided by RA Officer to user. Currently\
-            \ the code MUST be a string of 6-digits. In the future, it may be changed\
-            \ to a string with a length between 6-1024 characters."
+            \ the code MUST be a string of 6 digits. In the future, it may be changed\
+            \ to a string with a length between 6 and 1024 characters."
           example: "123456"
       description: Request body for checking user identity verification from RA officer.
     StatusBappResponseDTO:

@@ -10,8 +10,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 public class CheckUserIdentityVerificationResponseDTO {
 
     @Schema(
-            description = "verified true when provided code is matched and will be false if there is any error i-e: INVALID, EXPIRED or" +
-                    " CONSUMED",
+            description = "True when the provided code matches; false if there is an error, i.e. INVALID, EXPIRED, or CONSUMED.",
             example = "false",
             requiredMode = REQUIRED
     )
