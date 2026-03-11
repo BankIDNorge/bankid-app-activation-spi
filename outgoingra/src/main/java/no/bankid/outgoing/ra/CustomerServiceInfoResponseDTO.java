@@ -31,13 +31,13 @@ public class CustomerServiceInfoResponseDTO {
         public String display_name;
 
         @Schema(
-                description = "The verification method the financial institution will use when the user visits the branch. MANUAL_CODE means the RA officer will verbally provide a code; QR_CODE means the user will scan a QR code.",
+                description = "The verification method the financial institution will use when the user visits the branch. MANUAL_CODE means the RA officer will provide a verification code to the user; QR_CODE means the user will scan a QR code.",
                 requiredMode = REQUIRED
         )
         public VerificationMethod verification_method;
 
         @Schema(
-                description = "Length of the verification code the RA system will generate.",
+                description = "Length of the verification code.",
                 example = "6",
                 requiredMode = REQUIRED
         )
