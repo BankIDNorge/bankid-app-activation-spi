@@ -820,17 +820,17 @@ components:
       properties:
         verified:
           type: boolean
-          description: "Whether the verification code was valid and has been consumed.\
-            \ When true, the error field will be absent. When false, the error field\
-            \ MUST be present."
+          description: "verified true when provided code is matched and will be false\
+            \ if there is any error i-e: INVALID, EXPIRED or CONSUMED"
+          example: false
         error:
           type: string
-          description: "Error code if verification failed (only present when verified=false).\
-            \ Possible values: INVALID (verification code does not match, user may\
-            \ retry), EXPIRED (verification code has expired, codes expire after 15\
-            \ minutes), CONSUMED (verification code has already been successfully\
-            \ used). This field MUST be present when verified=false and MUST be absent\
-            \ when verified=true."
+          description: "Error code if verification failed. Possible values: - INVALID\
+            \ (verification code does not match, user may retry), - EXPIRED (verification\
+            \ code has expired, RA System needs to handle expiration time), - CONSUMED\
+            \ (verification code has already been successfully used). This field MUST\
+            \ be present when `verified=false` and MUST be absent when `verified=true`."
+          example: INVALID
           enum:
           - INVALID
           - EXPIRED
@@ -876,7 +876,7 @@ components:
           type: string
           description: "Verification code provided by RA Officer to user. Currently\
             \ the code MUST be a string of 6-digits. In the future, it may be changed\
-            \ to a string with a length of 6-1024 characters."
+            \ to a string with a length between 6-1024 characters."
           example: "123456"
       description: Request body for checking user identity verification from RA officer.
     StatusBappResponseDTO:
