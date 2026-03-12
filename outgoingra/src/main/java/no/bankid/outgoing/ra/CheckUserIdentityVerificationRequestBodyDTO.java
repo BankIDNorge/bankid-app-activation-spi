@@ -15,7 +15,8 @@ public class CheckUserIdentityVerificationRequestBodyDTO extends AuthenticationB
     public UUID activation_id;
 
     @Schema(
-            description = "Verification code provided by RA Officer to user. Currently the code MUST be a string of 6-digits. In the future, it may be changed to a string with a length of 6-1024 characters.",
+            description = "Verification code provided by RA Officer to user. Currently expected to be a 6-digit numeric string, " +
+                    "but the schema accepts strings between 6 and 1024 characters for forward-compatibility.",
             example = "123456",
             requiredMode = REQUIRED,
             minLength = 6,

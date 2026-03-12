@@ -928,11 +928,13 @@
         "properties" : {
           "verified" : {
             "type" : "boolean",
-            "description" : "Whether the verification code was valid and has been consumed. When true, the error field will be absent. When false, the error field MUST be present."
+            "description" : "True when the provided code matches; false if there is an error, i.e. INVALID, EXPIRED, or CONSUMED.",
+            "example" : false
           },
           "error" : {
             "type" : "string",
-            "description" : "Error code if verification failed (only present when verified=false). Possible values: INVALID (verification code does not match, user may retry), EXPIRED (verification code has expired, codes expire after 15 minutes), CONSUMED (verification code has already been successfully used). This field MUST be present when verified=false and MUST be absent when verified=true.",
+            "description" : "Error code if verification failed. Possible values:<ul><li>INVALID - verification code does not match, user may retry</li><li>EXPIRED - verification code has expired</li><li>CONSUMED - verification code has already been successfully used</li></ul>This field MUST be present when verified is false and MUST be absent when verified is true.",
+            "example" : "INVALID",
             "enum" : [ "INVALID", "EXPIRED", "CONSUMED" ]
           }
         },
@@ -971,7 +973,7 @@
             "maxLength" : 1024,
             "minLength" : 6,
             "type" : "string",
-            "description" : "Verification code provided by RA Officer to user. Currently the code MUST be a string of 6-digits. In the future, it may be changed to a string with a length of 6-1024 characters.",
+            "description" : "Verification code provided by RA Officer to user. Currently expected to be a 6-digit numeric string, but the schema accepts strings between 6 and 1024 characters for forward-compatibility.",
             "example" : "123456"
           }
         },
