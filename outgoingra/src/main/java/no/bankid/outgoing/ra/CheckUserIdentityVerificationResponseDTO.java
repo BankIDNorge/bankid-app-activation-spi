@@ -16,12 +16,13 @@ public class CheckUserIdentityVerificationResponseDTO {
     )
     public boolean verified;
     @Schema(
-            description = "Error code if verification failed. " +
-                    "Possible values: " +
-                    "- INVALID (verification code does not match, user may retry), " +
-                    "- EXPIRED (verification code has expired, RA System needs to handle expiration time), " +
-                    "- CONSUMED (verification code has already been successfully used). " +
-                    "This field MUST be present when `verified=false` and MUST be absent when `verified=true`.",
+            description = "Error code if verification failed. Possible values:" +
+                    "<ul>" +
+                    "<li>INVALID - verification code does not match, user may retry</li>" +
+                    "<li>EXPIRED - verification code has expired, RA System needs to handle expiration time</li>" +
+                    "<li>CONSUMED - verification code has already been successfully used</li>" +
+                    "</ul>" +
+                    "This field MUST be present when verified is false and MUST be absent when verified is true.",
             example = "INVALID",
             requiredMode = NOT_REQUIRED
     )
