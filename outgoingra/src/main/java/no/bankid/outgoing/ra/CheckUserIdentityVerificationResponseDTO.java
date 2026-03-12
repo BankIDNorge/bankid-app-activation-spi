@@ -19,7 +19,7 @@ public class CheckUserIdentityVerificationResponseDTO {
             description = "Error code if verification failed. Possible values:" +
                     "<ul>" +
                     "<li>INVALID - verification code does not match, user may retry</li>" +
-                    "<li>EXPIRED - verification code has expired, RA System needs to handle expiration time</li>" +
+                    "<li>EXPIRED - verification code has expired</li>" +
                     "<li>CONSUMED - verification code has already been successfully used</li>" +
                     "</ul>" +
                     "This field MUST be present when verified is false and MUST be absent when verified is true.",
