@@ -875,8 +875,8 @@ components:
           minLength: 6
           type: string
           description: "Verification code provided by RA Officer to user. Currently\
-            \ the code MUST be a string of 6 digits. In the future, it may be changed\
-            \ to a string with a length between 6 and 1024 characters."
+            \ expected to be a 6-digit numeric string, but the schema accepts strings\
+            \ between 6 and 1024 characters for forward-compatibility."
           example: "123456"
       description: Request body for checking user identity verification from RA officer.
     StatusBappResponseDTO:
