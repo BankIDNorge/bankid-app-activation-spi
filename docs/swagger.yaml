@@ -299,6 +299,30 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CustomerServiceInfoResponseDTO"
+              examples:
+                with-optional-fields:
+                  summary: Response with all optional fields set
+                  description: with-optional-fields
+                  value:
+                    customer_service_info:
+                      phone_number: "+4712345678"
+                      display_name: Bank of Norway
+                      verification_method: MANUAL_CODE
+                      code_length: 6
+                      instructions: Please bring a valid passport or national ID card
+                        to your appointment.
+                      booking_url: https://www.bankofnorway.no/book-appointment
+                without-optional-fields:
+                  summary: Response with optional fields set to null
+                  description: without-optional-fields
+                  value:
+                    customer_service_info:
+                      phone_number: "+4712345678"
+                      display_name: Bank of Norway
+                      verification_method: MANUAL_CODE
+                      code_length: 6
+                      instructions: null
+                      booking_url: null
         "400":
           description: In case of error
         "500":
@@ -935,12 +959,15 @@ components:
           maxLength: 250
           type: string
           description: "Optional instructions from the financial institution to the\
-            \ user, for example directions or what to bring. Maximum 250 characters."
+            \ user, for example directions or what to bring. Maximum 250 characters.\
+            \ Null when not set."
+          nullable: true
           example: Please bring a valid passport or national ID card to your appointment.
         booking_url:
           type: string
           description: Optional URL for booking an appointment at the financial institution's
-            branch.
+            branch. Null when not set.
+          nullable: true
           example: https://www.bankofnorway.no/book-appointment
       description: Customer service information for the financial institution
     CustomerServiceInfoResponseDTO:

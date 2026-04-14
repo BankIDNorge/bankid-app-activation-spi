@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -249,7 +250,41 @@ public interface RaRequirements {
             description = "Returns contact information for the financial institution's customer service to allow the user to book an appointment for physical presence verification.",
             tags = {APP_ENROLLMENT_IDENTIFICATION_BY_RA_OFFICER})
     @ApiResponse(responseCode = "200", description = "Customer service contact details retrieved successfully"
-            , content = @Content(schema = @Schema(implementation = CustomerServiceInfoResponseDTO.class)))
+            , content = @Content(
+                    schema = @Schema(implementation = CustomerServiceInfoResponseDTO.class),
+                    examples = {
+                            @ExampleObject(
+                                    name = "with-optional-fields",
+                                    summary = "Response with all optional fields set",
+                                    value = """
+                                            {
+                                              "customer_service_info": {
+                                                "phone_number": "+4712345678",
+                                                "display_name": "Bank of Norway",
+                                                "verification_method": "MANUAL_CODE",
+                                                "code_length": 6,
+                                                "instructions": "Please bring a valid passport or national ID card to your appointment.",
+                                                "booking_url": "https://www.bankofnorway.no/book-appointment"
+                                              }
+                                            }"""
+                            ),
+                            @ExampleObject(
+                                    name = "without-optional-fields",
+                                    summary = "Response with optional fields set to null",
+                                    value = """
+                                            {
+                                              "customer_service_info": {
+                                                "phone_number": "+4712345678",
+                                                "display_name": "Bank of Norway",
+                                                "verification_method": "MANUAL_CODE",
+                                                "code_length": 6,
+                                                "instructions": null,
+                                                "booking_url": null
+                                              }
+                                            }"""
+                            )
+                    }
+    ))
     @ApiResponse(responseCode = "400", description = "In case of error")
     @ApiResponse(responseCode = "500", description = "In case of error",
             content = @Content(schema = @Schema(implementation = SimpleErrorResponseDTO.class)))
