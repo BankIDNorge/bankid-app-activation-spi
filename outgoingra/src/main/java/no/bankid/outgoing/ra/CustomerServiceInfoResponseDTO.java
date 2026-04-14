@@ -44,17 +44,19 @@ public class CustomerServiceInfoResponseDTO {
         public int code_length;
 
         @Schema(
-                description = "Optional instructions from the financial institution to the user, for example directions or what to bring. Maximum 250 characters.",
+                description = "Optional instructions from the financial institution to the user, for example directions or what to bring. Maximum 250 characters. Null when not set.",
                 example = "Please bring a valid passport or national ID card to your appointment.",
                 maxLength = 250,
-                requiredMode = NOT_REQUIRED
+                requiredMode = NOT_REQUIRED,
+                nullable = true
         )
         public String instructions;
 
         @Schema(
-                description = "Optional URL for booking an appointment at the financial institution's branch.",
+                description = "Optional URL for booking an appointment at the financial institution's branch. Null when not set.",
                 example = "https://www.bankofnorway.no/book-appointment",
-                requiredMode = NOT_REQUIRED
+                requiredMode = NOT_REQUIRED,
+                nullable = true
         )
         public String booking_url;
     }
