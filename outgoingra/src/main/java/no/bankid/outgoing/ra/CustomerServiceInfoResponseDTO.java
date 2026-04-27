@@ -44,7 +44,8 @@ public class CustomerServiceInfoResponseDTO {
         public int code_length;
 
         @Schema(
-                description = "Optional instructions from the financial institution to the user, for example directions or what to bring. Maximum 250 characters. Null when not set.",
+                description = "Optional instructions from the financial institution to the user, for example directions or what to bring. Maximum 250 characters. Null when not set. " +
+                        "When the request includes an Accept-Language header with a supported language tag (nb, nn, en), the RA SHOULD return this text in the requested language on a best-effort basis; otherwise it falls back to the RA's default language.",
                 example = "Please bring a valid passport or national ID card to your appointment.",
                 maxLength = 250,
                 requiredMode = NOT_REQUIRED,
