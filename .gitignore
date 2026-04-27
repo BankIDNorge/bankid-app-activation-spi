@@ -145,3 +145,8 @@ tags
 [._]*.un~
 
 # End of https://www.toptal.com/developers/gitignore/api/maven,intellij,macos,vim,sublimetext
+
+# IDE/tool local directories
+.claude/
+outgoingra/.settings/
+

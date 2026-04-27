@@ -3,7 +3,7 @@
   "info" : {
     "title" : "BankID RA Service Provider Interface (SPI) for activation of BankID App",
     "description" : "Defines the interface to be provided by a Registration Authority service to support activation of BankID App as a HA2 element for an end user's Netcentric BankID.<p>An RA implementing the <i>OTP administration</i> group of operations may offer BankID App to all its end users having a functioning Netcentric BankID.</p><h6>Internal note: This SPI version corresponds to the document '<a href=\"https://bidbax.atlassian.net/wiki/spaces/BAPP/pages/20585103/Specification+of+Solutions+for+Activation+of+BankID+App+as+HA2-element\">Specification of Solutions for Activation of BankID App as HA2-elements</a>' version v.63</h6>\n",
-    "version" : "1.5.0"
+    "version" : "1.6.0"
   },
   "servers" : [ {
     "url" : "https://ra-preprod.bankidnorge.no/api/enduser/bankid/netcentric/vipps/bapp",
@@ -311,7 +311,7 @@
       "post" : {
         "tags" : [ "App enrollment - Identification by RA officer" ],
         "summary" : "Get customer service contact details for booking an appointment",
-        "description" : "Returns contact information for the financial institution's customer service to allow the user to book an appointment for physical presence verification.",
+        "description" : "Returns contact information for the financial institution's customer service to allow the user to book an appointment for physical presence verification. The optional <code>Accept-Language</code> header lets the caller request a preferred language for the human-readable <code>instructions</code> field in the response.",
         "operationId" : "getCustomerServiceContact",
         "parameters" : [ {
           "name" : "Signature",
@@ -340,6 +340,14 @@
             "type" : "string"
           },
           "example" : "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE="
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "description" : "Optional preferred language for human-readable text in the response, as defined in <a href=\"https://tools.ietf.org/html/rfc7231#section-5.3.5\">RFC 7231 - Accept-Language</a>. Supported language tags are <code>nb</code> (Norwegian Bokmål), <code>nn</code> (Norwegian Nynorsk) and <code>en</code> (English). The RA selects a supported language from the header on a best-effort basis. When the header is omitted, malformed, or no supported language can be determined, the RA returns the text in its default language; Norwegian (<code>nb</code>) is RECOMMENDED as the default.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "nb"
         } ],
         "requestBody" : {
           "content" : {
@@ -1049,7 +1057,7 @@
           "instructions" : {
             "maxLength" : 250,
             "type" : "string",
-            "description" : "Optional instructions from the financial institution to the user, for example directions or what to bring. Maximum 250 characters. Null when not set.",
+            "description" : "Optional instructions from the financial institution to the user, for example directions or what to bring. Maximum 250 characters. Null when not set. When the request includes an Accept-Language header with a supported language tag (nb, nn, en), the RA SHOULD return this text in the requested language on a best-effort basis; otherwise it falls back to the RA's default language (Norwegian recommended).",
             "nullable" : true,
             "example" : "Please bring a valid passport or national ID card to your appointment."
           },

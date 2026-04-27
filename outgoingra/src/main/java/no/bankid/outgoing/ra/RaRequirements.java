@@ -18,6 +18,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -28,7 +29,7 @@ import static no.bankid.outgoing.ra.HttpSignatureHeaders.SIGNATURE;
 @OpenAPIDefinition(
         info = @Info(
                 title = "BankID RA Service Provider Interface (SPI) for activation of BankID App",
-                version = "1.5.0",
+                version = "1.6.0",
                 description = """
                         Defines the interface to be provided by a Registration Authority service to \
                         support activation of BankID App as a HA2 element for an end user's Netcentric BankID.\
@@ -74,6 +75,15 @@ public interface RaRequirements {
             SHA-256 hash of body
             <p><b>Implementation tips:</b>MessageDigest.getIinstance("SHA-256") in Java returns an object which is not thread safe</p>""";
     String EXAMPLE_DIGEST = "SHA-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=";
+
+    String DESCRIPTION_ACCEPT_LANGUAGE = """
+            Optional preferred language for human-readable text in the response, as defined in \
+            <a href="https://tools.ietf.org/html/rfc7231#section-5.3.5">RFC 7231 - Accept-Language</a>. \
+            Supported language tags are <code>nb</code> (Norwegian Bokmål), <code>nn</code> (Norwegian Nynorsk) \
+            and <code>en</code> (English). The RA selects a supported language from the header on a best-effort \
+            basis. When the header is omitted, malformed, or no supported language can be determined, the RA \
+            returns the text in its default language; Norwegian (<code>nb</code>) is RECOMMENDED as the default.""";
+    String EXAMPLE_ACCEPT_LANGUAGE = "nb";
 
 
     String SERVICE_AVAILABILITY = "Service availability";
@@ -247,7 +257,8 @@ public interface RaRequirements {
     );
 
     @Operation(summary = "Get customer service contact details for booking an appointment",
-            description = "Returns contact information for the financial institution's customer service to allow the user to book an appointment for physical presence verification.",
+            description = "Returns contact information for the financial institution's customer service to allow the user to book an appointment for physical presence verification. " +
+                    "The optional <code>Accept-Language</code> header lets the caller request a preferred language for the human-readable <code>instructions</code> field in the response.",
             tags = {APP_ENROLLMENT_IDENTIFICATION_BY_RA_OFFICER})
     @ApiResponse(responseCode = "200", description = "Customer service contact details retrieved successfully"
             , content = @Content(
@@ -297,6 +308,8 @@ public interface RaRequirements {
             @HeaderParam(DATE) String date,
             @Parameter(description = DESCRIPTION_DIGEST, example = EXAMPLE_DIGEST, required = true)
             @HeaderParam(DIGEST) String digest,
+            @Parameter(description = DESCRIPTION_ACCEPT_LANGUAGE, example = EXAMPLE_ACCEPT_LANGUAGE)
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String acceptLanguage,
             @RequestBody(required = true)
             CustomerServiceContactRequestBodyDTO customerServiceContactRequestBody
     );
