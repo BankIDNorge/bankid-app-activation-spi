@@ -1,5 +1,6 @@
 package no.bankid.outgoing.ra;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
@@ -26,6 +27,7 @@ public class CheckUserIdentityVerificationResponseDTO {
             example = "INVALID",
             requiredMode = NOT_REQUIRED
     )
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public ErrorCode error;
 
     public enum ErrorCode {
