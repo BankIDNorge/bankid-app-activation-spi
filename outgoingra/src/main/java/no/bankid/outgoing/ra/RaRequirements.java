@@ -201,7 +201,8 @@ public interface RaRequirements {
 
     @Operation(summary = "Tell end user that BankID App is activated"
             , description = "Request notification of the end user that his BankID App instance is activated"
-            , tags = {OTP_ADMINISTRATION}
+            , tags = {OTP_ADMINISTRATION},
+            deprecated = true
     )
     @ApiResponse(responseCode = "200", description = "If all ok, no data is returned")
     @ApiResponse(responseCode = "400", description = "In case of error")
